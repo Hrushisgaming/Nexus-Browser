@@ -1,0 +1,23 @@
+name: Build Nexus for macOS (arm64)
+
+# Run it from the Actions tab: "Build Nexus for macOS (arm64)" -> "Run workflow".
+# Result: an artifact called "Nexus-arm64-dmg" on the run page (unsigned, ad-hoc signed).
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        required: false
+        description: "Runner image name"
+        default: "macos-latest"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Nexus (arm64)
+    uses: ./.github/workflows/building.yml
+    with:
+      arch: arm64
+      os: ${{ inputs.runner }}

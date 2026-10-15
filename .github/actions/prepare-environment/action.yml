@@ -1,0 +1,30 @@
+name: Prepare build environment
+runs:
+  using: composite
+  steps:
+    - name: Setup Python 3.13
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+    - name: Copy GitHub specific scripts to git-root folder
+      run: cp -va ./.github/scripts/ ./ ; date +%s > ./epoch_job_start.txt
+      shell: bash
+      working-directory: helium-macos
+    - name: Prepare Xcode
+      run: ./github_prepare_xcode.sh
+      shell: bash
+      working-directory: helium-macos
+    - name: Cleanup Android Related Stuff
+      run: sudo rm -rf $ANDROID_HOME
+      shell: bash
+      working-directory: helium-macos
+    - name: Disable Spotlight
+      run: sudo mdutil -a -i off
+      shell: bash
+      working-directory: helium-macos
+    - name: Setup Environment and Toolchain
+      run: |
+        set -o pipefail
+        ./github_setup_env_toolchain.sh | tee -a github_actions_setup_env_toolchain.log
+      shell: bash
+      working-directory: helium-macos

@@ -1,0 +1,1435 @@
+diff -ruN /home/claude/orig_helium_macos/dev.sh helium-macos/dev.sh
+--- /home/claude/orig_helium_macos/dev.sh	2026-10-15 08:40:33.913811218 +0000
++++ helium-macos/dev.sh	2026-10-15 08:40:34.008062887 +0000
+@@ -128,8 +128,8 @@
+ }
+ 
+ ___helium_run() {
+-    "$_out_dir/Helium.app/Contents/MacOS/Helium" \
+-    --user-data-dir="$HOME/Library/Application Support/net.imput.helium.dev" \
++    "$_out_dir/Nexus.app/Contents/MacOS/Nexus" \
++    --user-data-dir="$HOME/Library/Application Support/com.nexus.browser.dev" \
+     --enable-ui-devtools \
+     --use-mock-keychain \
+     --disable-features=DialMediaRouteProvider
+Binary files /home/claude/orig_helium_macos/devutils/__pycache__/generate_sparkle_deltas.cpython-312.pyc and helium-macos/devutils/__pycache__/generate_sparkle_deltas.cpython-312.pyc differ
+diff -ruN /home/claude/orig_helium_macos/devutils/generate_dmg_dsstore.sh helium-macos/devutils/generate_dmg_dsstore.sh
+--- /home/claude/orig_helium_macos/devutils/generate_dmg_dsstore.sh	2026-10-15 08:40:33.913946650 +0000
++++ helium-macos/devutils/generate_dmg_dsstore.sh	2026-10-15 08:40:34.007354191 +0000
+@@ -9,8 +9,8 @@
+ trap 'hdiutil detach "$_tmp/mnt" -quiet 2>/dev/null' EXIT
+ 
+ # Stub bundle is enough, the .DS_Store only records file names
+-mkdir -p "$_tmp/Helium.app/Contents/Resources" "$_tmp/mnt"
+-cp "$_resources/assets/app.icns" "$_tmp/Helium.app/Contents/Resources/"
++mkdir -p "$_tmp/Nexus.app/Contents/Resources" "$_tmp/mnt"
++cp "$_resources/assets/app.icns" "$_tmp/Nexus.app/Contents/Resources/"
+ ln -s "$_resources/dmg.json" "$_resources/dmg_background.png" "$_tmp/"
+ 
+ npx -y appdmg@0.6.6 "$_tmp/dmg.json" "$_tmp/layout.dmg"
+diff -ruN /home/claude/orig_helium_macos/devutils/generate_sparkle_deltas.py helium-macos/devutils/generate_sparkle_deltas.py
+--- /home/claude/orig_helium_macos/devutils/generate_sparkle_deltas.py	2026-10-15 08:40:33.914056078 +0000
++++ helium-macos/devutils/generate_sparkle_deltas.py	2026-10-15 08:40:34.007658877 +0000
+@@ -79,7 +79,7 @@
+       print(f.name)
+       with tempfile.TemporaryDirectory() as d1, tempfile.TemporaryDirectory() as d2:
+         with mount(f.name, d1), mount(args[i], d2):
+-          do_diff(d1 + '/Helium.app', d2 + '/Helium.app', f'{args[2]}/{version}-{arch}.delta')
++          do_diff(d1 + '/Nexus.app', d2 + '/Nexus.app', f'{args[2]}/{version}-{arch}.delta')
+ 
+ 
+ if __name__ == '__main__':
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/brave/chrome-importer-files.patch helium-macos/helium-chromium/patches/brave/chrome-importer-files.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/brave/chrome-importer-files.patch	2026-10-15 08:40:33.922691960 +0000
++++ helium-macos/helium-chromium/patches/brave/chrome-importer-files.patch	2026-10-15 08:40:34.014525339 +0000
+@@ -3064,7 +3064,7 @@
+ +            Full Disk Access required
+ +          </message>
+ +          <message name="IDS_IMPORT_FULL_DISK_ACCESS_DIALOG_MESSAGE" desc="Message for the dialog shown when Full Disk Access is needed to import bookmarks from Safari.">
+-+            Helium needs Full Disk Access to import your Bookmarks from Safari.
+++            Nexus needs Full Disk Access to import your Bookmarks from Safari.
+ +          </message>
+ +          <message name="IDS_IMPORT_FULL_DISK_ACCESS_DIALOG_LINK" desc="Help link text in the dialog shown when Full Disk Access is needed to import from Safari.">
+ +            Learn how to grant Full Disk Access from your System Preferences.
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/add-low-power-framerate-flag.patch helium-macos/helium-chromium/patches/helium/core/add-low-power-framerate-flag.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/add-low-power-framerate-flag.patch	2026-10-15 08:40:33.928562022 +0000
++++ helium-macos/helium-chromium/patches/helium/core/add-low-power-framerate-flag.patch	2026-10-15 08:40:34.050277646 +0000
+@@ -26,7 +26,7 @@
+ +    {helium::kEnergySaverFrameRateCommandLine,
+ +     "Maximum frame rate for Energy Saver",
+ +     "Configures the frame rate the browser is throttled to when Energy Saver "
+-+     "is enabled. Helium flag.",
+++     "is enabled. Nexus flag.",
+ +     kOsDesktop, MULTI_VALUE_TYPE(helium::kEnergySaverFrameRateChoices)},
+      // core/network
+      // ui
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/add-middle-click-autoscroll-flag.patch helium-macos/helium-chromium/patches/helium/core/add-middle-click-autoscroll-flag.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/add-middle-click-autoscroll-flag.patch	2026-10-15 08:40:33.927714969 +0000
++++ helium-macos/helium-chromium/patches/helium/core/add-middle-click-autoscroll-flag.patch	2026-10-15 08:40:54.534080246 +0000
+@@ -14,10 +14,10 @@
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -23,6 +23,10 @@
+       "Overrides the default URL for fetching updates. Should be used only for "
+-      "testing. Helium flag.",
++      "testing. Nexus flag.",
+       kOsDesktop, STRING_VALUE_TYPE(helium::kUpdateServerUrlCommandLine, "")},
+ +    {helium::kMiddleClickAutoscrollCommandLine, "Middle Click Autoscroll",
+-+     "Enables autoscroll on middle click. Helium flag, Chromium feature.",
+++     "Enables autoscroll on middle click. Nexus flag, Chromium feature.",
+ +     kOsDesktop,
+ +     FEATURE_VALUE_TYPE(blink::features::kHeliumMiddleClickAutoscroll)},
+      // core/network
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/add-native-bangs.patch helium-macos/helium-chromium/patches/helium/core/add-native-bangs.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/add-native-bangs.patch	2026-10-15 08:40:33.928704289 +0000
++++ helium-macos/helium-chromium/patches/helium/core/add-native-bangs.patch	2026-10-15 08:40:54.537287044 +0000
+@@ -743,13 +743,13 @@
+ +++ b/chrome/app/settings_strings.grdp
+ @@ -1615,6 +1615,12 @@
+      <message name="IDS_SETTINGS_HELIUM_SERVICES_EXT_PROXY_TOGGLE_DESCRIPTION" desc="Description of the toggle for enabling/disabling of downloading and proxying extensions">
+-       When enabled, Helium will proxy extension downloads and updates to protect your privacy. When disabled, downloading and updating extensions will not work.
++       When enabled, Nexus will proxy extension downloads and updates to protect your privacy. When disabled, downloading and updating extensions will not work.
+      </message>
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES_BANGS_TOGGLE" desc="Toggle for enabling/disabling of downloading bangs">
+ +      Allow downloading the !bangs list
+ +    </message>
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES_BANGS_TOGGLE_DESCRIPTION" desc="Description of the toggle for enabling/disabling of downloading bangs">
+-+      Helium will fetch a list of bangs that help you browse the Internet faster, such as !w or !gh. When disabled, bangs will not work.
+++      Nexus will fetch a list of bangs that help you browse the Internet faster, such as !w or !gh. When disabled, bangs will not work.
+ +    </message>
+      <message name="IDS_SETTINGS_HELIUM_SERVICES_OVERRIDE" desc="Text input for overriding the Helium services server">
+        Use your own instance of Helium services
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/add-update-channel-flag.patch helium-macos/helium-chromium/patches/helium/core/add-update-channel-flag.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/add-update-channel-flag.patch	2026-10-15 08:40:33.928663634 +0000
++++ helium-macos/helium-chromium/patches/helium/core/add-update-channel-flag.patch	2026-10-15 08:40:54.536622430 +0000
+@@ -79,11 +79,11 @@
+ --- a/chrome/browser/helium_flag_entries.h
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -16,6 +16,9 @@
+-      "Controls whether Helium asks for confirmation before opening 15 or more "
+-      "bookmarks at once. Helium flag.",
++      "Controls whether Nexus asks for confirmation before opening 15 or more "
++      "bookmarks at once. Nexus flag.",
+       kOsDesktop, FEATURE_VALUE_TYPE(features::kBookmarkOpenAllConfirmation)},
+ +    {helium::kChannelCommandLine, "Update channel",
+-+     "Selects which update channel to use for update checking. Helium flag.",
+++     "Selects which update channel to use for update checking. Nexus flag.",
+ +     kOsAll, MULTI_VALUE_TYPE(helium::kChannelChoices)},
+      // core/network
+      // ui
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/add-updater-preference.patch helium-macos/helium-chromium/patches/helium/core/add-updater-preference.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/add-updater-preference.patch	2026-10-15 08:40:33.927468528 +0000
++++ helium-macos/helium-chromium/patches/helium/core/add-updater-preference.patch	2026-10-15 08:40:54.531883649 +0000
+@@ -153,14 +153,14 @@
+ +++ b/chrome/app/settings_strings.grdp
+ @@ -1630,6 +1630,22 @@
+      <message name="IDS_SETTINGS_HELIUM_SERVICES_SPELLCHECK_TOGGLE_DESCRIPTION" desc="Description of the for enabling/disabling of downloading spellcheck files">
+-       Helium will fetch dictionary files used for spell checking when requested. When disabled, spell checking will not work.
++       Nexus will fetch dictionary files used for spell checking when requested. When disabled, spell checking will not work.
+      </message>
+ +    <if expr="not is_linux">
+ +      <message name="IDS_SETTINGS_HELIUM_SERVICES_UPDATE" desc="Toggle for automatic update downloads">
+ +        Allow automatic browser updates
+ +      </message>
+ +      <message name="IDS_SETTINGS_HELIUM_SERVICES_UPDATE_DESCRIPTION" desc="Description of the toggle for automatic update downloads">
+-+        Helium will automatically check for updates and install them. This includes browser and component updates. We recommend keeping this setting enabled to ensure you get the latest features and security updates.
+++        Nexus will automatically check for updates and install them. This includes browser and component updates. We recommend keeping this setting enabled to ensure you get the latest features and security updates.
+ +      </message>
+ +    </if>
+ +    <if expr="is_linux">
+@@ -168,7 +168,7 @@
+ +        Allow automatic component updates
+ +      </message>
+ +      <message name="IDS_SETTINGS_HELIUM_SERVICES_UPDATE_DESCRIPTION" desc="Description of the toggle for automatic update downloads">
+-+        Helium will automatically check for component updates and install them. We recommend keeping this setting enabled. On Linux, browser updates are handled by your distro's package manager. Please check for Helium package updates at least every week.
+++        Nexus will automatically check for component updates and install them. We recommend keeping this setting enabled. On Linux, browser updates are handled by your distro's package manager. Please check for Nexus package updates at least every week.
+ +      </message>
+ +    </if>
+      <message name="IDS_SETTINGS_HELIUM_SERVICES_OVERRIDE" desc="Text input for overriding the Helium services server">
+@@ -189,11 +189,11 @@
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -19,6 +19,10 @@
+      {helium::kChannelCommandLine, "Update channel",
+-      "Selects which update channel to use for update checking. Helium flag.",
++      "Selects which update channel to use for update checking. Nexus flag.",
+       kOsAll, MULTI_VALUE_TYPE(helium::kChannelChoices)},
+ +    {helium::kUpdateServerUrlCommandLine, "Update server URL",
+ +     "Overrides the default URL for fetching updates. Should be used only for "
+-+     "testing. Helium flag.",
+++     "testing. Nexus flag.",
+ +     kOsDesktop, STRING_VALUE_TYPE(helium::kUpdateServerUrlCommandLine, "")},
+      // core/network
+      // ui
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/bookmark-open-all-confirmation-flag.patch helium-macos/helium-chromium/patches/helium/core/bookmark-open-all-confirmation-flag.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/bookmark-open-all-confirmation-flag.patch	2026-10-15 08:40:33.927500081 +0000
++++ helium-macos/helium-chromium/patches/helium/core/bookmark-open-all-confirmation-flag.patch	2026-10-15 08:40:54.532238661 +0000
+@@ -2,11 +2,11 @@
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -12,6 +12,10 @@
+       "Configures the frame rate the browser is throttled to when Energy Saver "
+-      "is enabled. Helium flag.",
++      "is enabled. Nexus flag.",
+       kOsDesktop, MULTI_VALUE_TYPE(helium::kEnergySaverFrameRateChoices)},
+ +    {"bookmark-open-all-confirmation", "Bookmark open-all confirmation",
+-+     "Controls whether Helium asks for confirmation before opening 15 or more "
+-+     "bookmarks at once. Helium flag.",
+++     "Controls whether Nexus asks for confirmation before opening 15 or more "
+++     "bookmarks at once. Nexus flag.",
+ +     kOsDesktop, FEATURE_VALUE_TYPE(features::kBookmarkOpenAllConfirmation)},
+      // core/network
+      // ui
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/change-chromium-branding.patch helium-macos/helium-chromium/patches/helium/core/change-chromium-branding.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/change-chromium-branding.patch	2026-10-15 08:40:33.927393663 +0000
++++ helium-macos/helium-chromium/patches/helium/core/change-chromium-branding.patch	2026-10-15 08:40:34.002259102 +0000
+@@ -11,15 +11,15 @@
+ -MAC_BUNDLE_ID=org.chromium.Chromium
+ +COMPANY_FULLNAME=The Helium Authors
+ +COMPANY_SHORTNAME=The Helium Authors
+-+PRODUCT_FULLNAME=Helium
+-+PRODUCT_SHORTNAME=Helium
+-+PRODUCT_INSTALLER_FULLNAME=Helium Installer
+-+PRODUCT_INSTALLER_SHORTNAME=Helium Installer
+++PRODUCT_FULLNAME=Nexus
+++PRODUCT_SHORTNAME=Nexus
+++PRODUCT_INSTALLER_FULLNAME=Nexus Installer
+++PRODUCT_INSTALLER_SHORTNAME=Nexus Installer
+ +COPYRIGHT=Copyright @LASTCHANGE_YEAR@ The Helium Authors. All rights reserved.
+-+MAC_BUNDLE_ID=net.imput.helium
+++MAC_BUNDLE_ID=com.nexus.browser
+  MAC_CREATOR_CODE=Cr24
+ -MAC_TEAM_ID=
+-+MAC_TEAM_ID=S4Q33XPHB4
+++MAC_TEAM_ID=
+ --- a/chrome/app/chrome_crash_reporter_client.cc
+ +++ b/chrome/app/chrome_crash_reporter_client.cc
+ @@ -132,25 +132,7 @@ bool ChromeCrashReporterClient::GetCrash
+@@ -45,7 +45,7 @@
+ -  NOTREACHED();
+ -#endif
+ -
+-+  const char* product_name = "Helium";
+++  const char* product_name = "Nexus";
+    *product_info =
+        ProductInfo(product_name, UpdaterVersion(),
+                    chrome::GetChannelName(chrome::WithExtendedStable(true)));
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/crash-reporting-prefs.patch helium-macos/helium-chromium/patches/helium/core/crash-reporting-prefs.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/crash-reporting-prefs.patch	2026-10-15 08:40:33.927555540 +0000
++++ helium-macos/helium-chromium/patches/helium/core/crash-reporting-prefs.patch	2026-10-15 08:40:34.044052775 +0000
+@@ -129,7 +129,7 @@
+ +}  // namespace
+ +
+ +void SetUploadConsent(bool) {
+-+  // Helium manages crash upload consent through SetUploadConsentFromUser(),
+++  // Nexus manages crash upload consent through SetUploadConsentFromUser(),
+ +  // this function is stubbed out and the callers are ignored.
+  }
+  
+@@ -200,8 +200,8 @@
+  // running.
+  void SetUploadConsent(bool consent);
+  
+-+// Enables or disables uploads in response to Helium's explicit user consent.
+-+// Unlike SetUploadConsent(), this must only be called from Helium-owned UI.
+++// Enables or disables uploads in response to Nexus's explicit user consent.
+++// Unlike SetUploadConsent(), this must only be called from Nexus-owned UI.
+ +void SetUploadConsentFromUser(bool consent);
+ +
+  #endif  // !BUILDFLAG(IS_CHROMEOS)
+@@ -233,7 +233,7 @@
+  
+  namespace internal {
+  
+-+// Applies explicit Helium user consent in the module that owns the Crashpad
+++// Applies explicit Nexus user consent in the module that owns the Crashpad
+ +// database. On Windows this is invoked through chrome_elf.dll.
+ +void SetUploadConsentFromUserImpl(bool consent);
+ +
+@@ -540,7 +540,7 @@
+  void SetUploadConsent_ExportThunk(bool consent);
+  
+ +// This function may be invoked across module boundaries to update upload
+-+// consent granted explicitly through Helium's crash reporting UI.
+++// consent granted explicitly through Nexus's crash reporting UI.
+ +void SetUploadConsentFromUser_ExportThunk(bool consent);
+ +
+  // Returns the current upload consent state.
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/custom-keyboard-shortcuts.patch helium-macos/helium-chromium/patches/helium/core/custom-keyboard-shortcuts.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/custom-keyboard-shortcuts.patch	2026-10-15 08:40:33.930030718 +0000
++++ helium-macos/helium-chromium/patches/helium/core/custom-keyboard-shortcuts.patch	2026-10-15 08:40:34.058400040 +0000
+@@ -2016,7 +2016,7 @@
+ +
+ +bool IsDynamicCloseCommand(int command_id) {
+ +  // AppController swaps Cmd+W/Cmd+Shift+W between Close Tab and Close Window at
+-+  // runtime based on the active window. Helium can expose these commands for
+++  // runtime based on the active window. Nexus can expose these commands for
+ +  // additional shortcuts, but should not rewrite their menu-owned defaults.
+ +  return command_id == IDC_CLOSE_TAB || command_id == IDC_CLOSE_WINDOW;
+ +}
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/exclude-irrelevant-flags.patch helium-macos/helium-chromium/patches/helium/core/exclude-irrelevant-flags.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/exclude-irrelevant-flags.patch	2026-10-15 08:40:33.927579112 +0000
++++ helium-macos/helium-chromium/patches/helium/core/exclude-irrelevant-flags.patch	2026-10-15 08:40:34.044871460 +0000
+@@ -4,7 +4,7 @@
+      // AboutFlagsHistogramTest unit test to verify this process).
+  };
+  
+-+// Flags that either break Helium functionality or are not relevant to Helium
+++// Flags that either break Nexus functionality or are not relevant to Nexus
+ +constexpr auto kExcludedFlags = base::MakeFixedFlatSet<std::string_view>({
+ +  // Misc UI features
+ +  "omnibox-toolbelt",
+@@ -25,7 +25,7 @@
+ +  "android-fre-layout-update",
+ +  "enable-webui-browser-virtual-focus",
+ +
+-+  // Misc experiments not relevant to Helium
+++  // Misc experiments not relevant to Nexus
+ +  "extensions-menu-access-control",
+ +  "extensions-collapse-main-menu",
+ +  "menu-simplification",
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/fixups-chrome-webstore-script.patch helium-macos/helium-chromium/patches/helium/core/fixups-chrome-webstore-script.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/fixups-chrome-webstore-script.patch	2026-10-15 08:40:33.928550236 +0000
++++ helium-macos/helium-chromium/patches/helium/core/fixups-chrome-webstore-script.patch	2026-10-15 08:40:34.049978707 +0000
+@@ -50,7 +50,7 @@
+ +        return false;
+ +      }
+ +
+-+      el.nodeValue = el.nodeValue.replace(/\b(Google\s)?Chrome\b/, 'Helium');
+++      el.nodeValue = el.nodeValue.replace(/\b(Google\s)?Chrome\b/, 'Nexus');
+ +      return true;
+ +    } else if (el.childNodes) {
+ +      for (const node of el.childNodes) {
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/keyboard-shortcuts.patch helium-macos/helium-chromium/patches/helium/core/keyboard-shortcuts.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/keyboard-shortcuts.patch	2026-10-15 08:40:33.928533572 +0000
++++ helium-macos/helium-chromium/patches/helium/core/keyboard-shortcuts.patch	2026-10-15 08:40:34.049637477 +0000
+@@ -4,7 +4,7 @@
+  #define IDC_WEB_APP_MENU_APP_INFO       34074
+  #define IDC_WEB_APP_UPGRADE_DIALOG      34075
+  
+-+// Helium commands
+++// Nexus commands
+ +#define IDC_COPY_OR_INSPECT_SHORTCUT    34080
+ +
+  #if BUILDFLAG(IS_CHROMEOS)
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/network/disable-ech-flag.patch helium-macos/helium-chromium/patches/helium/core/network/disable-ech-flag.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/network/disable-ech-flag.patch	2026-10-15 08:40:33.928415694 +0000
++++ helium-macos/helium-chromium/patches/helium/core/network/disable-ech-flag.patch	2026-10-15 08:40:54.546962739 +0000
+@@ -12,13 +12,13 @@
+ --- a/chrome/browser/helium_flag_entries.h
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -49,6 +49,11 @@
+-      "`navigator.hardwareConcurrency` in a reasonable range. Helium flag.",
++      "`navigator.hardwareConcurrency` in a reasonable range. Nexus flag.",
+       kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoiseCpuCores)},
+      // core/network
+ +    {helium::kDisableEchCommandLine, "Disable Encrypted Client Hello (ECH)",
+ +     "Disables TLS Encrypted Client Hello, reducing traffic privacy when "
+ +     "accessing websites that support ECH. Use this flag only if ECH is "
+-+     "blocked on your network. Helium flag.",
+++     "blocked on your network. Nexus flag.",
+ +     kOsAll, SINGLE_VALUE_TYPE(helium::kDisableEchCommandLine)},
+      // ui
+      // platform
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/network/ignore-system-proxy-server-flag.patch helium-macos/helium-chromium/patches/helium/core/network/ignore-system-proxy-server-flag.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/network/ignore-system-proxy-server-flag.patch	2026-10-15 08:40:33.928428177 +0000
++++ helium-macos/helium-chromium/patches/helium/core/network/ignore-system-proxy-server-flag.patch	2026-10-15 08:40:54.547173894 +0000
+@@ -2,11 +2,11 @@
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -70,6 +70,10 @@
+       "middleboxes and TLS endpoints mishandle this behavior and may become "
+-      "inaccessible. Helium flag.",
++      "inaccessible. Nexus flag.",
+       kOsAll, FEATURE_VALUE_TYPE(net::features::kHeliumSplitClientHello)},
+ +    {"no-proxy-server", "Ignore system proxy",
+ +     "Ignores system proxy settings and always connects directly. This may "
+-+     "prevent access to networks that require a proxy. Helium flag.",
+++     "prevent access to networks that require a proxy. Nexus flag.",
+ +     kOsAll, SINGLE_VALUE_TYPE(switches::kNoProxyServer)},
+      // ui
+      // platform
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/network/quic-v2-flag.patch helium-macos/helium-chromium/patches/helium/core/network/quic-v2-flag.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/network/quic-v2-flag.patch	2026-10-15 08:40:33.928404748 +0000
++++ helium-macos/helium-chromium/patches/helium/core/network/quic-v2-flag.patch	2026-10-15 08:40:54.546713304 +0000
+@@ -2,13 +2,13 @@
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -54,6 +54,12 @@
+       "accessing websites that support ECH. Use this flag only if ECH is "
+-      "blocked on your network. Helium flag.",
++      "blocked on your network. Nexus flag.",
+       kOsAll, SINGLE_VALUE_TYPE(helium::kDisableEchCommandLine)},
+ +    {"quic-v2-only", "Use only QUIC v2 for HTTP/3",
+ +     "Restricts HTTP/3 connections to QUIC v2 instead of default QUIC v1. This "
+ +     "may help on networks that block QUIC v1 but do not recognize QUIC v2. It "
+ +     "does not force QUIC on unsupported sites. Connections may fall back to "
+-+     "TCP when the server does not support QUIC v2. Helium flag.",
+++     "TCP when the server does not support QUIC v2. Nexus flag.",
+ +     kOsAll, SINGLE_VALUE_TYPE_AND_VALUE(switches::kQuicVersion, "RFCv2")},
+      // ui
+      // platform
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/network/split-clienthello.patch helium-macos/helium-chromium/patches/helium/core/network/split-clienthello.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/network/split-clienthello.patch	2026-10-15 08:40:33.928460844 +0000
++++ helium-macos/helium-chromium/patches/helium/core/network/split-clienthello.patch	2026-10-15 08:40:54.547634151 +0000
+@@ -13,7 +13,7 @@
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -60,6 +60,16 @@
+       "does not force QUIC on unsupported sites. Connections may fall back to "
+-      "TCP when the server does not support QUIC v2. Helium flag.",
++      "TCP when the server does not support QUIC v2. Nexus flag.",
+       kOsAll, SINGLE_VALUE_TYPE_AND_VALUE(switches::kQuicVersion, "RFCv2")},
+ +    {helium::kHeliumSplitClientHelloCommandLine,
+ +     "Random TLS ClientHello splitting",
+@@ -23,7 +23,7 @@
+ +     "filtering, but it does not hide DNS queries or destination IP addresses "
+ +     "and makes TLS traffic unusual and potentially recognizable. Some "
+ +     "middleboxes and TLS endpoints mishandle this behavior and may become "
+-+     "inaccessible. Helium flag.",
+++     "inaccessible. Nexus flag.",
+ +     kOsAll, FEATURE_VALUE_TYPE(net::features::kHeliumSplitClientHello)},
+      // ui
+      // platform
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/noise/audio.patch helium-macos/helium-chromium/patches/helium/core/noise/audio.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/noise/audio.patch	2026-10-15 08:40:33.928040296 +0000
++++ helium-macos/helium-chromium/patches/helium/core/noise/audio.patch	2026-10-15 08:40:54.544893218 +0000
+@@ -12,12 +12,12 @@
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -38,6 +38,11 @@
+       "Adds insignificant noise to canvas pixels during readback to deceive "
+-      "canvas-based fingerprinting. Helium flag.",
++      "canvas-based fingerprinting. Nexus flag.",
+       kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoiseCanvas)},
+ +    {helium::kHeliumNoiseAudioCommandLine,
+-+     "[Helium Noise] Jitter audio context data",
+++     "[Nexus Noise] Jitter audio context data",
+ +     "Adds insignificant jitter to audio data to deceive AudioContext-based "
+-+     "fingerprinting. Helium flag.",
+++     "fingerprinting. Nexus flag.",
+ +     kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoiseAudio)},
+      // core/network
+      // ui
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/noise/canvas.patch helium-macos/helium-chromium/patches/helium/core/noise/canvas.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/noise/canvas.patch	2026-10-15 08:40:33.928125654 +0000
++++ helium-macos/helium-chromium/patches/helium/core/noise/canvas.patch	2026-10-15 08:40:54.546120043 +0000
+@@ -47,13 +47,13 @@
+ --- a/chrome/browser/helium_flag_entries.h
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -33,6 +33,11 @@
+-      "must be enabled for other anti-fingerprinting features to work. Helium "
++      "must be enabled for other anti-fingerprinting features to work. Nexus "
+       "flag.",
+       kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoise)},
+ +    {helium::kHeliumNoiseCanvasCommandLine,
+-+     "[Helium Noise] Canvas pixel noising",
+++     "[Nexus Noise] Canvas pixel noising",
+ +     "Adds insignificant noise to canvas pixels during readback to deceive "
+-+     "canvas-based fingerprinting. Helium flag.",
+++     "canvas-based fingerprinting. Nexus flag.",
+ +     kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoiseCanvas)},
+      // core/network
+      // ui
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/noise/core.patch helium-macos/helium-chromium/patches/helium/core/noise/core.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/noise/core.patch	2026-10-15 08:40:33.928076831 +0000
++++ helium-macos/helium-chromium/patches/helium/core/noise/core.patch	2026-10-15 08:40:54.545631048 +0000
+@@ -48,13 +48,13 @@
+ --- a/chrome/browser/helium_flag_entries.h
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -27,6 +27,12 @@
+-      "Enables autoscroll on middle click. Helium flag, Chromium feature.",
++      "Enables autoscroll on middle click. Nexus flag, Chromium feature.",
+       kOsDesktop,
+       FEATURE_VALUE_TYPE(blink::features::kHeliumMiddleClickAutoscroll)},
+-+    {helium::kHeliumNoiseCommandLine, "Helium Noise",
+-+     "Helium's anti-fingerprinting functionality. Adds insignificant noise to "
+++    {helium::kHeliumNoiseCommandLine, "Nexus Noise",
+++     "Nexus's anti-fingerprinting functionality. Adds insignificant noise to "
+ +     "various features to deceive fingerprinting scripts. Enabled by default, "
+-+     "must be enabled for other anti-fingerprinting features to work. Helium "
+++     "must be enabled for other anti-fingerprinting features to work. Nexus "
+ +     "flag.",
+ +     kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoise)},
+      // core/network
+@@ -66,7 +66,7 @@
+  // `RuntimeEnabledFeatures)`, they should still be ordered in this section based
+  // on the identifier name of the generated feature.
+  
+-+// Helium Noise; required for fingerprinting protection features.
+++// Nexus Noise; required for fingerprinting protection features.
+ +BASE_FEATURE(kHeliumNoise,
+ +             base::FEATURE_ENABLED_BY_DEFAULT);
+ +
+@@ -1241,7 +1241,7 @@
+  inline constexpr char kImportDialogExtensions[] =
+      "import_dialog_extensions";
+  
+-+// Whether Helium Noise is enabled globally.
+++// Whether Nexus Noise is enabled globally.
+ +inline constexpr char kHeliumNoiseEnabled[] = "helium.noise.enabled";
+ +
+  // Boolean indicating whether clearing window.name when the navigation is
+@@ -1475,7 +1475,7 @@
+    // - BLOCK: Skip the prompt and block adding sub apps.
+    SUB_APPS_WITHOUT_PROMPTS,
+  
+-+  // Whether Helium Noise is enabled for a top-level origin.
+++  // Whether Nexus Noise is enabled for a top-level origin.
+ +  HELIUM_NOISE,
+ +
+    // Controls the display of the inline cue menu in a website.
+@@ -1527,7 +1527,7 @@
+    <int value="145" label="Add Sub Apps without prompts"/>
+    <int value="146" label="Inline cue menu"/>
+    <int value="147" label="Suspicious site warning data"/>
+-+  <int value="1000" label="Helium Noise"/>
+++  <int value="1000" label="Nexus Noise"/>
+  </enum>
+  
+  <!-- LINT.ThenChange(//components/content_settings/core/common/content_settings_uma_constants.h:kContentSettingsTypeToHistogramValue) -->
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/noise/hardware-concurrency.patch helium-macos/helium-chromium/patches/helium/core/noise/hardware-concurrency.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/noise/hardware-concurrency.patch	2026-10-15 08:40:33.928011630 +0000
++++ helium-macos/helium-chromium/patches/helium/core/noise/hardware-concurrency.patch	2026-10-15 08:40:54.544459424 +0000
+@@ -13,12 +13,12 @@
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -43,6 +43,11 @@
+       "Adds insignificant jitter to audio data to deceive AudioContext-based "
+-      "fingerprinting. Helium flag.",
++      "fingerprinting. Nexus flag.",
+       kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoiseAudio)},
+ +    {helium::kHeliumNoiseCpuCoresCommandLine,
+-+     "[Helium Noise] Randomize number of CPU cores",
+++     "[Nexus Noise] Randomize number of CPU cores",
+ +     "Randomizes the number of cores returned by "
+-+     "`navigator.hardwareConcurrency` in a reasonable range. Helium flag.",
+++     "`navigator.hardwareConcurrency` in a reasonable range. Nexus flag.",
+ +     kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoiseCpuCores)},
+      // core/network
+      // ui
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/onboarding-page.patch helium-macos/helium-chromium/patches/helium/core/onboarding-page.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/onboarding-page.patch	2026-10-15 08:40:33.929527437 +0000
++++ helium-macos/helium-chromium/patches/helium/core/onboarding-page.patch	2026-10-15 08:40:34.055264111 +0000
+@@ -792,7 +792,7 @@
+        <!-- Global Media Controls specific strings -->
+        <part file="gmc_strings.grdp" />
+  
+-+      <!-- Helium onboarding strings -->
+++      <!-- Nexus onboarding strings -->
+ +      <part file="../../components/helium_onboarding/helium_onboarding_strings.grdp" />
+ +
+        <!-- Media live preview specific strings -->
+@@ -821,7 +821,7 @@
+ -  // affected tests to handle correctly the FRE opening instead of a tab.
+ -  return !base::CommandLine::ForCurrentProcess()->HasSwitch(
+ -      switches::kNoFirstRun);
+-+  // Helium uses its own onboarding, including for forced first-run launches.
+++  // Nexus uses its own onboarding, including for forced first-run launches.
+ +  return false;
+  }
+  
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/override-chrome-protocol.patch helium-macos/helium-chromium/patches/helium/core/override-chrome-protocol.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/override-chrome-protocol.patch	2026-10-15 08:40:33.927351447 +0000
++++ helium-macos/helium-chromium/patches/helium/core/override-chrome-protocol.patch	2026-10-15 08:40:34.003790670 +0000
+@@ -4,7 +4,7 @@
+  inline constexpr char kChromeDevToolsScheme[] = "devtools";
+  inline constexpr char kChromeErrorScheme[] = "chrome-error";
+  inline constexpr char kChromeUIScheme[] = "chrome";  // Used for WebUIs.
+-+inline constexpr char kHeliumUIScheme[] = "helium";  // also used for webuis :3
+++inline constexpr char kHeliumUIScheme[] = "nexus";  // also used for webuis :3
+  inline constexpr char kChromeNativeScheme[] = "chrome-native";
+  inline constexpr char kChromeUIUntrustedScheme[] = "chrome-untrusted";
+  inline constexpr char kViewSourceScheme[] = "view-source";
+@@ -255,7 +255,7 @@
+  
+  // Hardcode these constants to avoid dependences on //chrome and //content.
+  const char kChromeUIScheme[] = "chrome";
+-+const char kHeliumUIScheme[] = "helium";
+++const char kHeliumUIScheme[] = "nexus";
+  const char kDevToolsScheme[] = "devtools";
+  const char kChromeUIDefaultHost[] = "version";
+  const char kViewSourceScheme[] = "view-source";
+@@ -322,7 +322,7 @@
+           client_->GetBuiltinsToProvideAsUserTypes()) {
+ -      AddBuiltinMatch(url, std::u16string(), styles);
+ +      DCHECK(url.starts_with(u"chrome://"));
+-+      AddBuiltinMatch(std::u16string(url).replace(0, 6, u"helium"),
+++      AddBuiltinMatch(std::u16string(url).replace(0, 6, u"nexus"),
+ +                      std::u16string(), styles);
+      }
+    } else {
+@@ -372,7 +372,7 @@
+ -    if (protocol === 'chrome:') {
+ -      this.$.secondaryTextInner.prepend(document.createTextNode('chrome://'));
+ +    if (protocol === 'chrome:' || protocol === 'helium:') {
+-+      this.$.secondaryTextInner.prepend(document.createTextNode('helium://'));
+++      this.$.secondaryTextInner.prepend(document.createTextNode('nexus://'));
+      }
+    }
+  
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/proxy-extension-downloads.patch helium-macos/helium-chromium/patches/helium/core/proxy-extension-downloads.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/proxy-extension-downloads.patch	2026-10-15 08:40:33.927631048 +0000
++++ helium-macos/helium-chromium/patches/helium/core/proxy-extension-downloads.patch	2026-10-15 08:40:54.533565160 +0000
+@@ -221,13 +221,13 @@
+ +++ b/chrome/app/settings_strings.grdp
+ @@ -1609,6 +1609,12 @@
+      <message name="IDS_SETTINGS_HELIUM_SERVICES_TOGGLE_DESCRIPTION" desc="Description of the toggle for enabling/disabling of all Helium services">
+-       When enabled, Helium will be able to connect to anonymous web services to provide additional functionality. When disabled, additional features will not work.
++       When enabled, Nexus will be able to connect to anonymous web services to provide additional functionality. When disabled, additional features will not work.
+      </message>
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES_EXT_PROXY_TOGGLE" desc="Toggle for enabling/disabling of downloading and proxying extensions">
+ +      Proxy extension downloads and updates
+ +    </message>
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES_EXT_PROXY_TOGGLE_DESCRIPTION" desc="Description of the toggle for enabling/disabling of downloading and proxying extensions">
+-+      When enabled, Helium will proxy extension downloads and updates to protect your privacy. When disabled, downloading and updating extensions will not work.
+++      When enabled, Nexus will proxy extension downloads and updates to protect your privacy. When disabled, downloading and updating extensions will not work.
+ +    </message>
+      <message name="IDS_SETTINGS_HELIUM_SERVICES_OVERRIDE" desc="Text input for overriding the Helium services server">
+        Use your own instance of Helium services
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/reenable-spellcheck-downloads.patch helium-macos/helium-chromium/patches/helium/core/reenable-spellcheck-downloads.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/reenable-spellcheck-downloads.patch	2026-10-15 08:40:33.928206381 +0000
++++ helium-macos/helium-chromium/patches/helium/core/reenable-spellcheck-downloads.patch	2026-10-15 08:40:54.535429200 +0000
+@@ -156,13 +156,13 @@
+      <if expr="is_chromeos">
+ @@ -1621,6 +1624,12 @@
+      <message name="IDS_SETTINGS_HELIUM_SERVICES_BANGS_TOGGLE_DESCRIPTION" desc="Description of the toggle for enabling/disabling of downloading bangs">
+-       Helium will fetch a list of bangs that help you browse the Internet faster, such as !w or !gh. When disabled, bangs will not work.
++       Nexus will fetch a list of bangs that help you browse the Internet faster, such as !w or !gh. When disabled, bangs will not work.
+      </message>
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES_SPELLCHECK_TOGGLE" desc="Toggle for enabling/disabling of downloading spellcheck files">
+ +      Allow downloading dictionary files for spell checking
+ +    </message>
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES_SPELLCHECK_TOGGLE_DESCRIPTION" desc="Description of the for enabling/disabling of downloading spellcheck files">
+-+      Helium will fetch dictionary files used for spell checking when requested. When disabled, spell checking will not work.
+++      Nexus will fetch dictionary files used for spell checking when requested. When disabled, spell checking will not work.
+ +    </message>
+      <message name="IDS_SETTINGS_HELIUM_SERVICES_OVERRIDE" desc="Text input for overriding the Helium services server">
+        Use your own instance of Helium services
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/services-prefs.patch helium-macos/helium-chromium/patches/helium/core/services-prefs.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/services-prefs.patch	2026-10-15 08:40:33.928740390 +0000
++++ helium-macos/helium-chromium/patches/helium/core/services-prefs.patch	2026-10-15 08:40:34.052727307 +0000
+@@ -4,7 +4,7 @@
+        </message>
+      </if>
+  
+-+    <!-- Helium Services Privacy Settings (helium://settings/privacy/services) -->
+++    <!-- Helium Services Privacy Settings (nexus://settings/privacy/services) -->
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES" desc="Name of the page which controls connectivity to Helium services">
+ +      Helium services
+ +    </message>
+@@ -24,7 +24,7 @@
+ +      Allow connecting to Helium services
+ +    </message>
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES_TOGGLE_DESCRIPTION" desc="Description of the toggle for enabling/disabling of all Helium services">
+-+      When enabled, Helium will be able to connect to anonymous web services to provide additional functionality. When disabled, additional features will not work.
+++      When enabled, Nexus will be able to connect to anonymous web services to provide additional functionality. When disabled, additional features will not work.
+ +    </message>
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES_OVERRIDE" desc="Text input for overriding the Helium services server">
+ +      Use your own instance of Helium services
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/sync/disable-google-backed-sync-integrations.patch helium-macos/helium-chromium/patches/helium/core/sync/disable-google-backed-sync-integrations.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/sync/disable-google-backed-sync-integrations.patch	2026-10-15 08:40:33.929210677 +0000
++++ helium-macos/helium-chromium/patches/helium/core/sync/disable-google-backed-sync-integrations.patch	2026-10-15 08:40:34.077118180 +0000
+@@ -133,7 +133,7 @@
+ -  }
+ -  NOTREACHED();
+ +UploadState GetUploadToGoogleState(const SyncService*, DataType) {
+-+  // Helium does not provide an account-backed Sync backend. Local and custom
+++  // Nexus does not provide an account-backed Sync backend. Local and custom
+ +  // backends do not grant consent to upload data to Google services.
+ +  return UploadState::NOT_ACTIVE;
+  }
+@@ -148,7 +148,7 @@
+ -// Returns whether `type` is being uploaded to Google. This is useful for
+ -// features that depend on user consent for uploading data (e.g. history) to
+ -// Google.
+-+// Helium does not support account-backed Google Sync, so this always returns
+++// Nexus does not support account-backed Google Sync, so this always returns
+ +// NOT_ACTIVE. Account-only features should use this helper rather than infer
+ +// Google consent from the selected backend.
+  UploadState GetUploadToGoogleState(const SyncService* sync_service,
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/ublock-dns-uncloaking.patch helium-macos/helium-chromium/patches/helium/core/ublock-dns-uncloaking.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/ublock-dns-uncloaking.patch	2026-10-15 08:40:33.927600334 +0000
++++ helium-macos/helium-chromium/patches/helium/core/ublock-dns-uncloaking.patch	2026-10-15 08:40:34.045506774 +0000
+@@ -9,7 +9,7 @@
+ +      "location": "component",
+ +      "component_extensions_auto_granted": false,
+ +      "allowlist": [
+-+        "70C2895ED505C532A80761F0928B821B103D0786"  // Helium uBlock Origin component
+++        "70C2895ED505C532A80761F0928B821B103D0786"  // Nexus uBlock Origin component
+ +      ]
+ +    },
+ +    {
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/ublock-helium-services.patch helium-macos/helium-chromium/patches/helium/core/ublock-helium-services.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/ublock-helium-services.patch	2026-10-15 08:40:33.930010347 +0000
++++ helium-macos/helium-chromium/patches/helium/core/ublock-helium-services.patch	2026-10-15 08:40:54.539329705 +0000
+@@ -218,14 +218,14 @@
+ --- a/chrome/app/settings_strings.grdp
+ +++ b/chrome/app/settings_strings.grdp
+ @@ -1646,6 +1646,12 @@
+-         Helium will automatically check for component updates and install them. We recommend keeping this setting enabled. On Linux, browser updates are handled by your distro's package manager. Please check for Helium package updates at least every week.
++         Nexus will automatically check for component updates and install them. We recommend keeping this setting enabled. On Linux, browser updates are handled by your distro's package manager. Please check for Nexus package updates at least every week.
+        </message>
+      </if>
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES_UBO" desc="Description of the toggle for uBO filter lists">
+ +      Allow downloading filter lists for uBlock Origin
+ +    </message>
+ +    <message name="IDS_SETTINGS_HELIUM_SERVICES_UBO_DESCRIPTION" desc="Description of the toggle for automatic update downloads">
+-+      Helium will fetch fresh filter lists for uBlock Origin. All requests to lists are proxied to protect your privacy. When disabled, default filter lists will be loaded from local storage, which are only updated along with Helium. Optional filter lists will be requested without proxying.
+++      Nexus will fetch fresh filter lists for uBlock Origin. All requests to lists are proxied to protect your privacy. When disabled, default filter lists will be loaded from local storage, which are only updated along with Nexus. Optional filter lists will be requested without proxying.
+ +    </message>
+      <message name="IDS_SETTINGS_HELIUM_SERVICES_OVERRIDE" desc="Text input for overriding the Helium services server">
+        Use your own instance of Helium services
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/update-credits.patch helium-macos/helium-chromium/patches/helium/core/update-credits.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/core/update-credits.patch	2026-10-15 08:40:33.929299102 +0000
++++ helium-macos/helium-chromium/patches/helium/core/update-credits.patch	2026-10-15 08:41:07.616688811 +0000
+@@ -6,7 +6,7 @@
+      {
+ -      'opensource_project': 'ungoogled-chromium',
+ -      'opensource_link': 'https://github.com/ungoogled-software/ungoogled-chromium',
+-+      'opensource_project': 'Helium',
+++      'opensource_project': 'Nexus (based on Helium)',
+ +      'opensource_link': 'https://github.com/imputnet/helium',
+      },
+      escape=False,
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/hop/setup.patch helium-macos/helium-chromium/patches/helium/hop/setup.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/hop/setup.patch	2026-10-15 08:40:33.930138979 +0000
++++ helium-macos/helium-chromium/patches/helium/hop/setup.patch	2026-10-15 08:40:34.059019836 +0000
+@@ -147,7 +147,7 @@
+    // policy. This source should be kept as highest priority source.
+    POLICY_SOURCE_RESTRICTED_MANAGED_GUEST_SESSION_OVERRIDE,
+  
+-+  // Helium opinionated policies
+++  // Nexus opinionated policies
+ +  POLICY_SOURCE_HOP,
+ +
+    // Number of source types. Has to be the last element.
+@@ -211,8 +211,8 @@
+    <message name="IDS_POLICY_SOURCE_RESTRICTED_MANAGED_GUEST_SESSION_OVERRIDE" desc="Indicates that the policy originates from the restricted managed guest session override.">
+      Restricted managed guest session override
+    </message>
+-+  <message name="IDS_POLICY_SOURCE_HOP" desc="Indicates that the policy originates from Helium defaults.">
+-+    Helium defaults
+++  <message name="IDS_POLICY_SOURCE_HOP" desc="Indicates that the policy originates from Nexus defaults.">
+++    Nexus defaults
+ +  </message>
+    <message name="IDS_POLICY_SOURCE_ACTIVE_DIRECTORY" desc="Indicates that the policy originates from a local server, e.g. Samba or Active Directory.">
+      <ph name="MICROSOFT_ACTIVE_DIRECTORY">Local Server</ph>
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/settings/crash-reporting-settings.patch helium-macos/helium-chromium/patches/helium/settings/crash-reporting-settings.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/settings/crash-reporting-settings.patch	2026-10-15 08:40:33.927103966 +0000
++++ helium-macos/helium-chromium/patches/helium/settings/crash-reporting-settings.patch	2026-10-15 08:40:34.041302998 +0000
+@@ -8,7 +8,7 @@
+ +      Crash reporting
+ +    </message>
+ +    <message name="IDS_SETTINGS_HELIUM_CRASH_REPORTING_DESCRIPTION" desc="Description of the setting that controls crash reporting">
+-+      Choose whether Helium can ask to send crash reports or send them automatically. Disabling reports will delete all pending reports.
+++      Choose whether Nexus can ask to send crash reports or send them automatically. Disabling reports will delete all pending reports.
+ +    </message>
+ +    <message name="IDS_SETTINGS_HELIUM_CRASH_REPORTING_DISABLED" desc="Crash reporting option that disables prompts and submissions">
+ +      Disabled
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/settings/helium-noise-settings.patch helium-macos/helium-chromium/patches/helium/settings/helium-noise-settings.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/settings/helium-noise-settings.patch	2026-10-15 08:40:33.926988225 +0000
++++ helium-macos/helium-chromium/patches/helium/settings/helium-noise-settings.patch	2026-10-15 08:40:34.039793904 +0000
+@@ -26,21 +26,21 @@
+        Delete history, cookies, cache, and more
+      </message>
+ +
+-+    <!-- Helium Noise -->
+-+    <message name="IDS_SETTINGS_NOISE" desc="Title of the settings page for Helium's fingerprinting protection feature.">
+++    <!-- Nexus Noise -->
+++    <message name="IDS_SETTINGS_NOISE" desc="Title of the settings page for Nexus's fingerprinting protection feature.">
+ +      Fingerprinting protection
+ +    </message>
+ +    <message name="IDS_SETTINGS_NOISE_LINK_DESCRIPTION" desc="Description of the fingerprinting protection link on the Privacy and security settings page.">
+-+      Manage how Helium protects you against fingerprinting
+++      Manage how Nexus protects you against fingerprinting
+ +    </message>
+ +    <message name="IDS_SETTINGS_NOISE_TOGGLE_DESCRIPTION" desc="Description of the global fingerprinting protection toggle.">
+ +      Make it harder for sites to fingerprint your browser and device
+ +    </message>
+-+    <message name="IDS_SETTINGS_NOISE_DESCRIPTION" desc="Description of how Helium protects against browser fingerprinting.">
+-+      When fingerprinting protection is enabled, Helium adds noise to certain browser features to make it harder for sites to track and profile you. Each site sees consistent randomized information during your browsing session to reduce the chances of detection.
+++    <message name="IDS_SETTINGS_NOISE_DESCRIPTION" desc="Description of how Nexus protects against browser fingerprinting.">
+++      When fingerprinting protection is enabled, Nexus adds noise to certain browser features to make it harder for sites to track and profile you. Each site sees consistent randomized information during your browsing session to reduce the chances of detection.
+ +    </message>
+-+    <message name="IDS_SETTINGS_NOISE_DISCLAIMER" desc="Disclaimer shown below the fingerprinting protection description explaining that Helium makes fingerprint recovery harder but cannot prevent fingerprinting completely.">
+-+      Fingerprinting cannot be fully prevented, but Helium's analysis defenses make it harder to recover the original fingerprint.
+++    <message name="IDS_SETTINGS_NOISE_DISCLAIMER" desc="Disclaimer shown below the fingerprinting protection description explaining that Nexus makes fingerprint recovery harder but cannot prevent fingerprinting completely.">
+++      Fingerprinting cannot be fully prevented, but Nexus's analysis defenses make it harder to recover the original fingerprint.
+ +    </message>
+ +    <message name="IDS_SETTINGS_NOISE_CUSTOM_DESCRIPTION" desc="General explanation of fingerprinting protection site rules and wildcard behavior.">
+ +      When the general fingerprinting protection feature is enabled, sites listed below follow a custom setting. Inserting "[*.]" before a domain name applies it to the entire domain.
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/settings/network-and-security-page.patch helium-macos/helium-chromium/patches/helium/settings/network-and-security-page.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/settings/network-and-security-page.patch	2026-10-15 08:40:33.927079202 +0000
++++ helium-macos/helium-chromium/patches/helium/settings/network-and-security-page.patch	2026-10-15 08:40:34.040728812 +0000
+@@ -20,7 +20,7 @@
+ +      Network and security
+ +    </message>
+ +    <message name="IDS_SETTINGS_NETWORK_AND_SECURITY_DESCRIPTION" desc="Description of the settings row that opens the security settings page">
+-+      Manage how Helium connects to sites, what privacy signals are allowed, and more
+++      Manage how Nexus connects to sites, what privacy signals are allowed, and more
+ +    </message>
+ +    <message name="IDS_SETTINGS_NETWORK_SECTION_TITLE" desc="Title of the network section on the network and security settings page">
+ +      Network
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/settings/update-search-suggest-text.patch helium-macos/helium-chromium/patches/helium/settings/update-search-suggest-text.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/settings/update-search-suggest-text.patch	2026-10-15 08:40:33.926709303 +0000
++++ helium-macos/helium-chromium/patches/helium/settings/update-search-suggest-text.patch	2026-10-15 08:40:34.037559461 +0000
+@@ -5,7 +5,7 @@
+      When you type in the address bar or search box, Chromium sends what you type to your default search engine to get better suggestions. This is off in Incognito.
+    </message>
+ +  <message name="IDS_SETTINGS_SUGGEST_PREF_DESC_HELIUM" desc="The description of the checkbox to enable/disable sending omnibox input to the user's default search engine to get additional suggestions.">
+-+    When you type in the address bar, Helium sends what you type to your default search engine to get suggestions. This is off in Incognito.
+++    When you type in the address bar, Nexus sends what you type to your default search engine to get suggestions. This is off in Incognito.
+ +  </message>
+    <message name="IDS_SETTINGS_SEARCH_AGGREGATOR_PREF_DESC" desc="The description of the 'Show suggestions and results from your organization' checkbox, which enables/disables sending omnibox input to the user's organization's search aggregator to get additional suggestions. Note that this setting is controlled by enterprise policy and, while a checkbox is shown, it is always enabled and cannot be disabled.">
+      When you type in the address bar or search box, Chromium sends what you type to your organization's search, AI, and agent tools to get suggestions.
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/clean-incognito-guest-ntp.patch helium-macos/helium-chromium/patches/helium/ui/clean-incognito-guest-ntp.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/clean-incognito-guest-ntp.patch	2026-10-15 08:40:33.924422744 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/clean-incognito-guest-ntp.patch	2026-10-15 08:40:34.024437940 +0000
+@@ -49,7 +49,7 @@
+          </message>
+        </if>
+ +      <message name="IDS_NEW_TAB_OTR_SUBTITLE_HELIUM" desc="Subtitle of the Incognito new tab page, explaining to the user that the Incognito mode hides their browsing activity from other people using the same device, and what data is exempt from it.">
+-+        Helium will not save anything about your browsing in Incognito, but downloads and bookmarks will stick around. Your browsing won't leave any traces on this device, and other users won't be able to see your activity.
+++        Nexus will not save anything about your browsing in Incognito, but downloads and bookmarks will stick around. Your browsing won't leave any traces on this device, and other users won't be able to see your activity.
+ +      </message>
+        <message name="IDS_NEW_TAB_OTR_SUBTITLE_WITH_READING_LIST" desc="Subtitle of the Incognito new tab page, explaining to the user that the Incognito mode hides their browsing activity from other people using the same device. The second sentence clarifies that there are two important exceptions from this rule - downloaded files and added bookmarks will be persisted even after the Incognito session is closed." formatter_data="android_java">
+          Others who use this device won’t see your activity, so you can browse more privately. This won't change how data is collected by websites you visit and the services they use, including Google. Downloads, bookmarks and reading list items will be saved.
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/crash-dialog.patch helium-macos/helium-chromium/patches/helium/ui/crash-dialog.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/crash-dialog.patch	2026-10-15 08:40:33.924436472 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/crash-dialog.patch	2026-10-15 08:40:34.025001842 +0000
+@@ -43,14 +43,14 @@
+        <message name="IDS_SAD_TAB_RELOAD_LABEL" desc="Button label in the sad tab page for reloading a page." formatter_data="android_java">
+          Reload
+        </message>
+-+      <message name="IDS_HELIUM_CRASH_REPORTING_DIALOG_TITLE" desc="Title of the dialog asking whether to send one or more Helium crash reports. The report count is shown for multiple reports. [ICU Syntax]">
+++      <message name="IDS_HELIUM_CRASH_REPORTING_DIALOG_TITLE" desc="Title of the dialog asking whether to send one or more Nexus crash reports. The report count is shown for multiple reports. [ICU Syntax]">
+ +        {COUNT, plural, =1 {Would you like to send a crash report?} other {Would you like to send # crash reports?}}
+ +      </message>
+-+      <message name="IDS_HELIUM_CRASH_REPORTING_DIALOG_DESCRIPTION" desc="Introductory paragraph shown when one or more Helium crash reports are available.">
+-+        Helium closed unexpectedly. A crash report could help us fix the issue you ran into and prevent it from happening again.
+++      <message name="IDS_HELIUM_CRASH_REPORTING_DIALOG_DESCRIPTION" desc="Introductory paragraph shown when one or more Nexus crash reports are available.">
+++        Nexus closed unexpectedly. A crash report could help us fix the issue you ran into and prevent it from happening again.
+ +      </message>
+-+      <message name="IDS_HELIUM_CRASH_REPORTING_DIALOG_PRIVACY" desc="Paragraph warning that a crash report may contain sensitive information from Helium's memory.">
+-+        A crash report may incidentally include some sensitive data present in Helium's memory at the time of crash.
+++      <message name="IDS_HELIUM_CRASH_REPORTING_DIALOG_PRIVACY" desc="Paragraph warning that a crash report may contain sensitive information from Nexus's memory.">
+++        A crash report may incidentally include some sensitive data present in Nexus's memory at the time of crash.
+ +      </message>
+ +      <message name="IDS_HELIUM_CRASH_REPORTING_DIALOG_OPTIONAL" desc="Paragraph explaining that no crash report has been sent yet and that sending reports is optional.">
+ +        Nothing has been sent yet. Sending a crash report is optional.
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/crashes-webui-fixes.patch helium-macos/helium-chromium/patches/helium/ui/crashes-webui-fixes.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/crashes-webui-fixes.patch	2026-10-15 08:40:33.924592818 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/crashes-webui-fixes.patch	2026-10-15 08:40:34.026299456 +0000
+@@ -161,7 +161,7 @@
+        <!-- chrome://crashes strings -->
+        <message name="IDS_CRASH_DISABLED_MESSAGE" desc="The explanatory message for chrome://crashes when crash reporting is disabled">
+ -        Crash reporting is not available in Chromium.
+-+        Crash reporting is disabled in Helium settings or by policy.
+++        Crash reporting is disabled in Nexus settings or by policy.
+        </message>
+  
+        <!-- Version UI -->
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/helium-noise-page-info.patch helium-macos/helium-chromium/patches/helium/ui/helium-noise-page-info.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/helium-noise-page-info.patch	2026-10-15 08:40:33.924756280 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/helium-noise-page-info.patch	2026-10-15 08:40:34.028610569 +0000
+@@ -52,7 +52,7 @@
+                                 std::optional<url::Origin> requesting_origin,
+                                 bool is_one_time);
+  
+-+  // Marks the current page for a reload prompt after its Helium Noise setting
+++  // Marks the current page for a reload prompt after its Nexus Noise setting
+ +  // changes. The setting itself is owned by the Chrome-layer Noise helper.
+ +  void OnHeliumNoiseSettingChanged();
+ +
+@@ -65,23 +65,23 @@
+      Your organization has blocked this site because it violates a policy.
+    </message>
+  
+-+  <!-- Helium Noise strings -->
+++  <!-- Nexus Noise strings -->
+ +  <message name="IDS_PAGE_INFO_HELIUM_NOISE_HEADER" desc="The title of the fingerprinting protection row and subpage in Page Info.">
+ +    Fingerprinting protection
+ +  </message>
+ +  <message name="IDS_PAGE_INFO_HELIUM_NOISE_TOOLTIP" desc="Tooltip for the fingerprinting protection row in Page Info.">
+ +    Manage fingerprinting protection for this site
+ +  </message>
+-+  <message name="IDS_PAGE_INFO_HELIUM_NOISE_DESCRIPTION" desc="Explanation of how Helium fingerprinting protection works.">
+-+    When fingerprinting protection is enabled, Helium adds noise to certain browser features to make it harder for sites to track and profile you.
+++  <message name="IDS_PAGE_INFO_HELIUM_NOISE_DESCRIPTION" desc="Explanation of how Nexus fingerprinting protection works.">
+++    When fingerprinting protection is enabled, Nexus adds noise to certain browser features to make it harder for sites to track and profile you.
+ +  </message>
+-+  <message name="IDS_PAGE_INFO_HELIUM_NOISE_BREAKAGE" desc="Explanation of how disabling Helium's fingerprinting protection may fix privacy-invasive websites, but will reduce user's privacy.">
+++  <message name="IDS_PAGE_INFO_HELIUM_NOISE_BREAKAGE" desc="Explanation of how disabling Nexus's fingerprinting protection may fix privacy-invasive websites, but will reduce user's privacy.">
+ +    Turning off the protection will reduce your privacy, but may fix site features that require fingerprinting.
+ +  </message>
+ +  <message name="IDS_PAGE_INFO_HELIUM_NOISE_GLOBALLY_DISABLED" desc="Explanation shown when the site toggle is unavailable because fingerprinting protection is disabled globally.">
+-+    Fingerprinting protection is turned off in Helium settings.
+++    Fingerprinting protection is turned off in Nexus settings.
+ +  </message>
+-+  <message name="IDS_PAGE_INFO_HELIUM_NOISE_SETTINGS_BUTTON" desc="A button label that opens Helium's global fingerprinting protection settings page.">
+++  <message name="IDS_PAGE_INFO_HELIUM_NOISE_SETTINGS_BUTTON" desc="A button label that opens Nexus's global fingerprinting protection settings page.">
+ +    Manage fingerprinting protection
+ +  </message>
+  </grit-part>
+@@ -275,7 +275,7 @@
+ +class ToggleButton;
+ +}
+ +
+-+// Content for the Helium Noise subpage in Page Info.
+++// Content for the Nexus Noise subpage in Page Info.
+ +class PageInfoNoiseContentView : public views::FlexLayoutView,
+ +                                 public PageInfoUI {
+ + public:
+@@ -503,7 +503,7 @@
+    // Returns the icon for the secure connection button.
+    static const ui::ImageModel GetConnectionSecureIcon();
+  
+-+  // Returns the Helium Noise icon for the given enabled state.
+++  // Returns the Nexus Noise icon for the given enabled state.
+ +  static const ui::ImageModel GetNoiseIcon(bool enabled);
+ +
+    // Returns the icon for a button which opens a subpage within page info.
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/hide-page-actions-flag.patch helium-macos/helium-chromium/patches/helium/ui/hide-page-actions-flag.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/hide-page-actions-flag.patch	2026-10-15 08:40:33.926298452 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/hide-page-actions-flag.patch	2026-10-15 08:40:54.527962417 +0000
+@@ -13,12 +13,12 @@
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -79,5 +79,10 @@
+       "Enables an option to apply native materials to the browser frame "
+-      "surfaces. May cause UI clarity issues. Helium flag.",
++      "surfaces. May cause UI clarity issues. Nexus flag.",
+       kOsMac, FEATURE_VALUE_TYPE(features::kHeliumNativeFrameMaterials)},
+ +    {helium::kHeliumHidePageActionsCommandLine, "Hide all page actions",
+ +     "Hides all page actions at the end of address bar. This includes: "
+ +     "bookmark star, page zoom, PWA install/open, local file access, and more. "
+-+     "Important actions and indicators will be missing. Helium flag.",
+++     "Important actions and indicators will be missing. Nexus flag.",
+ +     kOsDesktop, FEATURE_VALUE_TYPE(features::kHeliumHidePageActions)},
+      // platform
+  #endif  // CHROME_BROWSER_HELIUM_FLAG_ENTRIES_H_
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/infobar.patch helium-macos/helium-chromium/patches/helium/ui/infobar.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/infobar.patch	2026-10-15 08:40:33.924816256 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/infobar.patch	2026-10-15 08:40:54.523459656 +0000
+@@ -6,7 +6,7 @@
+      case DISTANCE_INFOBAR_HEIGHT:
+ -      // Spec says height of button should be 36dp, vertical padding on both
+ -      // top and bottom should be 8dp.
+-+      // Helium uses compact vertical padding around the infobar controls.
+++      // Nexus uses compact vertical padding around the infobar controls.
+        // The new refreshed button height is 20 + (2 * 6) = 32dp.
+ -      // Therefore, the total infobar height is 32dp + 2 * 12.
+ -      return 32 + 2 * 12;
+@@ -254,7 +254,7 @@
+    switch (layout_data_->window_state) {
+ @@ -217,8 +219,9 @@ BrowserViewTabbedLayoutImpl::CalculateSe
+      case WindowState::kMaximized: {
+-       // Side panel shadow overlay is disabled in Helium.
++       // Side panel shadow overlay is disabled in Nexus.
+        info.shadow_box = false;
+ -      const bool suppress_separator = false;
+ -      info.multi_contents_separator = !suppress_separator && !has_infobar;
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/layout/context-menu.patch helium-macos/helium-chromium/patches/helium/ui/layout/context-menu.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/layout/context-menu.patch	2026-10-15 08:40:33.925770430 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/layout/context-menu.patch	2026-10-15 08:40:54.543412610 +0000
+@@ -2,7 +2,7 @@
+ +++ b/chrome/app/chrome_command_ids.h
+ @@ -113,15 +113,12 @@
+  
+- // Helium commands
++ // Nexus commands
+  #define IDC_COPY_OR_INSPECT_SHORTCUT    34080
+ -
+ -#if BUILDFLAG(IS_CHROMEOS)
+@@ -28,7 +28,7 @@
+          Use the split view menu to switch between side by side and stacked layouts.
+        </message>
+  
+-+      <!-- Helium Browser Layout Strings -->
+++      <!-- Nexus Browser Layout Strings -->
+ +      <if expr="use_titlecase">
+ +        <then>
+ +          <message name="IDS_BROWSER_LAYOUT_MENU" desc="In Title Case: The submenu for browser layout options.">
+@@ -71,7 +71,7 @@
+ +          </message>
+ +        </else>
+ +      </if>
+-+      <!-- /Helium Browser Layout Strings -->
+++      <!-- /Nexus Browser Layout Strings -->
+ +
+        <!-- Vertical Tab Strings -->
+        <message name="IDS_SWITCH_TO_VERTICAL_TAB" desc="The button in context menu that switches to vertical tab view.">
+@@ -154,7 +154,7 @@
+    command_updater_->UpdateCommandEnabled(IDC_SHOW_SEARCH_TOOLS, true);
+    command_updater_->UpdateCommandEnabled(IDC_SHOW_AI_MODE_OMNIBOX_BUTTON, true);
+  
+-+  // Helium layout menu
+++  // Nexus layout menu
+ +  command_updater_->UpdateCommandEnabled(IDC_BROWSER_LAYOUT_MENU, true);
+ +  command_updater_->UpdateCommandEnabled(IDC_BROWSER_LAYOUT_CLASSIC, true);
+ +  command_updater_->UpdateCommandEnabled(IDC_BROWSER_LAYOUT_DYNAMIC, true);
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/layout/settings.patch helium-macos/helium-chromium/patches/helium/ui/layout/settings.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/layout/settings.patch	2026-10-15 08:40:33.925686070 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/layout/settings.patch	2026-10-15 08:40:34.064788021 +0000
+@@ -4,7 +4,7 @@
+    }
+    s_allowlist = new PrefsUtil::TypedPrefMap();
+  
+-+  // Helium layout
+++  // Nexus layout
+ +  (*s_allowlist)[::prefs::kHeliumLayout] = settings_api::PrefType::kNumber;
+ +  (*s_allowlist)[::prefs::kHeliumVerticalRightAligned] =
+ +      settings_api::PrefType::kBoolean;
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/layout/toolbar-actions.patch helium-macos/helium-chromium/patches/helium/ui/layout/toolbar-actions.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/layout/toolbar-actions.patch	2026-10-15 08:40:33.925614670 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/layout/toolbar-actions.patch	2026-10-15 08:40:54.542264876 +0000
+@@ -5,12 +5,12 @@
+  inline constexpr char kShowMediaButton[] = "helium.browser.show_media_button";
+  
+ +// A boolean pref set to true if the Vertical Tabs collapse button should be
+-+// visible on the toolbar when the vertical Helium layout is active.
+++// visible on the toolbar when the vertical Nexus layout is active.
+ +inline constexpr char kShowVerticalTabsCollapseButton[] =
+ +    "helium.browser.show_vertical_tabs_collapse_button";
+ +
+ +// A boolean pref set to true if the New Tab button should be visible on the
+-+// toolbar when the dynamic Helium layout is active.
+++// toolbar when the dynamic Nexus layout is active.
+ +inline constexpr char kShowDynamicNewTabButton[] =
+ +    "helium.browser.show_dynamic_new_tab_button";
+ +
+@@ -93,7 +93,7 @@
+    // Media Picker screen scroll view.
+    VIEW_ID_MEDIA_PICKER_SCREEN_SCROLL_VIEW,
+ +
+-+  // Helium toolbar buttons.
+++  // Nexus toolbar buttons.
+ +  VIEW_ID_DYNAMIC_NEW_TAB_BUTTON,
+ +  VIEW_ID_COLLAPSE_VERTICAL_TABS_BUTTON,
+  };
+@@ -527,7 +527,7 @@
+  #include "chrome/browser/ui/views/frame/browser_root_view.h"
+ @@ -336,6 +337,12 @@ class ToolbarView : public views::Access
+  
+-   // Returns whether the Helium layout is Compact.
++   // Returns whether the Nexus layout is Compact.
+    bool IsCompactLayout() const;
+ +  bool IsDynamicLayout() const;
+ +  bool IsVerticalLayout() const;
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/layout/toolbar-layout.patch helium-macos/helium-chromium/patches/helium/ui/layout/toolbar-layout.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/layout/toolbar-layout.patch	2026-10-15 08:40:33.925755684 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/layout/toolbar-layout.patch	2026-10-15 08:40:34.066003094 +0000
+@@ -215,7 +215,7 @@
+    // the trailing edge of the toolbar.
+    bool IsTrailingContextualTasksButtonVisible() const;
+  
+-+  // Returns whether the Helium layout is Compact.
+++  // Returns whether the Nexus layout is Compact.
+ +  bool IsCompactLayout() const;
+ +
+    // AppMenuIconController::Delegate:
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/layout-constants.patch helium-macos/helium-chromium/patches/helium/ui/layout-constants.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/layout-constants.patch	2026-10-15 08:40:33.926053085 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/layout-constants.patch	2026-10-15 08:40:34.033022025 +0000
+@@ -170,7 +170,7 @@
+  #include "ui/gfx/geometry/size.h"
+  
+  enum class LayoutConstant {
+-+  // The base padding used in Helium UI.
+++  // The base padding used in Nexus UI.
+ +  kHeliumBasePadding,
+ +
+    // The size of the avatar icon in the profile row of the app menu.
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/licenses-in-credits.patch helium-macos/helium-chromium/patches/helium/ui/licenses-in-credits.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/licenses-in-credits.patch	2026-10-15 08:40:33.924971464 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/licenses-in-credits.patch	2026-10-15 08:40:34.031567030 +0000
+@@ -1,7 +1,7 @@
+ --- /dev/null
+ +++ b/third_party/helium/README.chromium
+ @@ -0,0 +1,14 @@
+-+Name: Helium
+++Name: Nexus
+ +Short Name: helium
+ +URL: https://github.com/imputnet/helium
+ +License: GPL-3.0-only
+@@ -11,7 +11,7 @@
+ +
+ +Description:
+ +The browser. We assume that it has the same license as helium-onboarding,
+-+which is released under the same license and is a direct component of Helium.
+++which is released under the same license and is a direct component of Nexus.
+ +
+ +Local Modifications:
+ +None
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/native-frame-materials.patch helium-macos/helium-chromium/patches/helium/ui/native-frame-materials.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/native-frame-materials.patch	2026-10-15 08:40:33.926164658 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/native-frame-materials.patch	2026-10-15 08:40:54.526856902 +0000
+@@ -43,12 +43,12 @@
+ --- a/chrome/browser/helium_flag_entries.h
+ +++ b/chrome/browser/helium_flag_entries.h
+ @@ -75,5 +75,9 @@
+-      "prevent access to networks that require a proxy. Helium flag.",
++      "prevent access to networks that require a proxy. Nexus flag.",
+       kOsAll, SINGLE_VALUE_TYPE(switches::kNoProxyServer)},
+      // ui
+ +    {helium::kHeliumNativeFrameMaterialsCommandLine, "Native frame materials",
+ +     "Enables an option to apply native materials to the browser frame "
+-+     "surfaces. May cause UI clarity issues. Helium flag.",
+++     "surfaces. May cause UI clarity issues. Nexus flag.",
+ +     kOsMac, FEATURE_VALUE_TYPE(features::kHeliumNativeFrameMaterials)},
+      // platform
+  #endif  // CHROME_BROWSER_HELIUM_FLAG_ENTRIES_H_
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/side-panel.patch helium-macos/helium-chromium/patches/helium/ui/side-panel.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/side-panel.patch	2026-10-15 08:40:33.924395522 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/side-panel.patch	2026-10-15 08:40:34.024022599 +0000
+@@ -422,7 +422,7 @@
+ -      info.shadow_box =
+ -          has_side_panel && (has_infobar || !is_split_view || !is_force_to_top);
+ -      const bool suppress_separator = info.shadow_box && is_force_to_top;
+-+      // Side panel shadow overlay is disabled in Helium.
+++      // Side panel shadow overlay is disabled in Nexus.
+ +      info.shadow_box = false;
+ +      const bool suppress_separator = false;
+        info.multi_contents_separator = !suppress_separator && !has_infobar;
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/toolbar-button-prefs.patch helium-macos/helium-chromium/patches/helium/ui/toolbar-button-prefs.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/toolbar-button-prefs.patch	2026-10-15 08:40:33.926493118 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/toolbar-button-prefs.patch	2026-10-15 08:40:34.036873278 +0000
+@@ -53,7 +53,7 @@
+    (*s_allowlist)[::prefs::kSplitViewDragAndDropEnabled] =
+        settings_api::PrefType::kBoolean;
+  
+-+  // Helium toolbar settings.
+++  // Nexus toolbar settings.
+ +  (*s_allowlist)[::prefs::kShowBackButton] =
+ +      settings_api::PrefType::kBoolean;
+ +  (*s_allowlist)[::prefs::kShowReloadButton] =
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/ublock-show-in-settings.patch helium-macos/helium-chromium/patches/helium/ui/ublock-show-in-settings.patch
+--- /home/claude/orig_helium_macos/helium-chromium/patches/helium/ui/ublock-show-in-settings.patch	2026-10-15 08:40:33.924679041 +0000
++++ helium-macos/helium-chromium/patches/helium/ui/ublock-show-in-settings.patch	2026-10-15 08:40:34.027126668 +0000
+@@ -91,8 +91,8 @@
+          <message name="IDS_EXTENSIONS_INSTALL_LOCATION_SHARED_MODULE" desc="The text explaining the the installation of the extension was because of extensions that depend on this shared module">
+            Installed because of dependent extension(s).
+          </message>
+-+        <message name="IDS_EXTENSIONS_INSTALL_LOCATION_HELIUM" desc="The text explaining the the installation location is a Helium component.">
+-+          Helium component
+++        <message name="IDS_EXTENSIONS_INSTALL_LOCATION_HELIUM" desc="The text explaining the the installation location is a Nexus component.">
+++          Nexus component
+ +        </message>
+  
+          <!-- Extension blocklist state -->
+Binary files /home/claude/orig_helium_macos/helium-chromium/utils/__pycache__/name_substitution.cpython-312.pyc and helium-macos/helium-chromium/utils/__pycache__/name_substitution.cpython-312.pyc differ
+Binary files /home/claude/orig_helium_macos/helium-chromium/utils/__pycache__/name_substitution_utils.cpython-312.pyc and helium-macos/helium-chromium/utils/__pycache__/name_substitution_utils.cpython-312.pyc differ
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/utils/name_substitution.py helium-macos/helium-chromium/utils/name_substitution.py
+--- /home/claude/orig_helium_macos/helium-chromium/utils/name_substitution.py	2026-10-15 08:40:33.918074002 +0000
++++ helium-macos/helium-chromium/utils/name_substitution.py	2026-10-15 08:40:34.006429803 +0000
+@@ -3,7 +3,7 @@
+ # Copyright 2025 The Helium Authors
+ # You can use, redistribute, and/or modify this source code under
+ # the terms of the GPL-3.0 license that can be found in the LICENSE file.
+-"""Script to replace instances of Chrome/Chromium with Helium"""
++"""Script to replace instances of Chrome/Chromium with Nexus"""
+ 
+ from concurrent.futures import ProcessPoolExecutor
+ from tarfile import TarInfo
+@@ -21,16 +21,16 @@
+ def replacement_sanity():
+     """Sanity check to ensure replacement regexes are working as intended"""
+     before_after = [
+-        ('chrome://about', 'helium://about'),
++        ('chrome://about', 'nexus://about'),
+         ('Chrome Root Program', 'Chrome Root Program'),
+-        (' Chrome  ', ' Helium  '),
++        (' Chrome  ', ' Nexus  '),
+         ('Chrome Web Store', 'Chrome Web Store'),
+         ('Chromium Web Store', 'Chromium Web Store'),
+         ('Chrome Remote Desktop', 'Chrome Remote Desktop'),
+-        ('Google Chrome', 'Helium'),
+-        ('Chrome Google Chrome Chrome Chromium', 'Helium Helium Helium Helium'),
+-        ('Chrome', 'Helium'),
+-        ('Chromium', 'Helium'),
++        ('Google Chrome', 'Nexus'),
++        ('Chrome Google Chrome Chrome Chromium', 'Nexus Nexus Nexus Nexus'),
++        ('Chrome', 'Nexus'),
++        ('Chromium', 'Nexus'),
+     ]
+ 
+     for source, expected in before_after:
+diff -ruN /home/claude/orig_helium_macos/helium-chromium/utils/name_substitution_utils.py helium-macos/helium-chromium/utils/name_substitution_utils.py
+--- /home/claude/orig_helium_macos/helium-chromium/utils/name_substitution_utils.py	2026-10-15 08:40:33.917978192 +0000
++++ helium-macos/helium-chromium/utils/name_substitution_utils.py	2026-10-15 08:40:34.006000332 +0000
+@@ -14,8 +14,8 @@
+     (r'(\w+) Remote Desktop', r'\1_unreplace Remote Desktop'),
+ 
+     # main replacement(s)
+-    (r'(\b)chrome://', r'\1helium://'),
+-    (r'(?:Google )?Chrom(e|ium)(?!\w)', r'Helium'),
++    (r'(\b)chrome://', r'\1nexus://'),
++    (r'(?:Google )?Chrom(e|ium)(?!\w)', r'Nexus'),
+ 
+     # post-replacement cleanup
+     (r'((?:Google )?Chrom(e|ium))_unreplace', r'\1'),
+@@ -68,7 +68,7 @@
+ 
+ 
+ def replace_text(text):
+-    """Replaces instances of Chrom(e | ium) with Helium in strings"""
++    """Replaces instances of Chrom(e | ium) with Nexus in strings"""
+     had_match = False
+     for regex, replacement in REPLACEMENT_REGEXES:
+         if regex.search(text):
+@@ -89,7 +89,7 @@
+ 
+ def replace_grit_message(msg):
+     """
+-    Replaces instances of Chrom(e | ium) with Helium
++    Replaces instances of Chrom(e | ium) with Nexus
+     in a <message> or <translation> element (and its children).
+     """
+     had_any_match = False
+@@ -112,7 +112,7 @@
+ 
+ def replace_xtb_translation(msg, fp_map):
+     """
+-    Replaces instances of Chrom(e | ium) with Helium in a
++    Replaces instances of Chrom(e | ium) with Nexus in a
+     .xtb <translation>.
+     """
+     if not replace_grit_message(msg):
+@@ -130,7 +130,7 @@
+ 
+ 
+ def replace_grit_tree(text):
+-    """Replaces instances of Chrom(e | ium) with Helium, where desired"""
++    """Replaces instances of Chrom(e | ium) with Nexus, where desired"""
+     xml_tree = xml.fromstring(text, get_parser())
+     fp_map = {}
+ 
+@@ -153,7 +153,7 @@
+     # If there are colliding strings after name substitution, offset the
+     # additional translations so that they don't error out the build.
+     # This usually applies to strings that have one "Chromium" and one
+-    # "Chrome" variant. Since we substituted both of those with Helium,
++    # "Chrome" variant. Since we substituted both of those with Nexus,
+     # their fingerprints collide and crash the build.
+     translation_id = translation.get('id')
+     while translation_id in seen and translation_id.isdigit():
+diff -ruN /home/claude/orig_helium_macos/patches/helium/macos/change-keychain-name.patch helium-macos/patches/helium/macos/change-keychain-name.patch
+--- /home/claude/orig_helium_macos/patches/helium/macos/change-keychain-name.patch	2026-10-15 08:40:33.933314022 +0000
++++ helium-macos/patches/helium/macos/change-keychain-name.patch	2026-10-15 08:40:34.002790012 +0000
+@@ -11,8 +11,8 @@
+ -const char kDefaultServiceName[] = "Chromium Safe Storage";
+ -const char kDefaultAccountName[] = "Chromium";
+ -#endif
+-+const char kDefaultServiceName[] = "Helium Storage Key";
+-+const char kDefaultAccountName[] = "Helium";
+++const char kDefaultServiceName[] = "Nexus Safe Storage";
+++const char kDefaultAccountName[] = "Nexus";
+  
+  // These values are persisted to logs. Entries should not be renumbered and
+  // numeric values should never be reused.
+diff -ruN /home/claude/orig_helium_macos/patches/helium/macos/change-product-dir-name.patch helium-macos/patches/helium/macos/change-product-dir-name.patch
+--- /home/claude/orig_helium_macos/patches/helium/macos/change-product-dir-name.patch	2026-10-15 08:40:33.933158048 +0000
++++ helium-macos/patches/helium/macos/change-product-dir-name.patch	2026-10-15 08:40:34.003273589 +0000
+@@ -11,7 +11,7 @@
+ -#else
+ -      product_dir_name = "Chromium";
+ -#endif
+-+      product_dir_name = "net.imput.helium";
+++      product_dir_name = "Nexus";
+      }
+  
+      // Leaked, but the only caller initializes a static with this result, so it
+diff -ruN /home/claude/orig_helium_macos/patches/helium/macos/chromium-signing.patch helium-macos/patches/helium/macos/chromium-signing.patch
+--- /home/claude/orig_helium_macos/patches/helium/macos/chromium-signing.patch	2026-10-15 08:40:33.933195385 +0000
++++ helium-macos/patches/helium/macos/chromium-signing.patch	2026-10-15 08:40:34.083950527 +0000
+@@ -6,7 +6,7 @@
+      if sign_framework:
+ +        sparkle = '{.framework_dir}/Frameworks/Sparkle.framework'.format(config)
+ +        if os.path.isdir(os.path.join(paths.work, sparkle)):
+-+            # Helium builds Sparkle without its optional XPC services.
+++            # Nexus builds Sparkle without its optional XPC services.
+ +            for name, identifier in (
+ +                ('Autoupdate', 'org.sparkle-project.Sparkle.Autoupdate'),
+ +                ('Updater.app', 'org.sparkle-project.Sparkle.Updater'),
+@@ -30,7 +30,7 @@
+                  _staple_chrome(notary_paths.replace_work(dest_dir), dist_config)
+  
+ +        # Notarized apps remain in the temporary work directory. Export them
+-+        # before it is deleted so Helium's separate DMG packaging step can use
+++        # before it is deleted so Nexus's separate DMG packaging step can use
+ +        # the signed app, including its stapled ticket when requested.
+ +        if disable_packaging and config.notarize.should_notarize():
+ +            for dist_config in dist_configs:
+@@ -99,7 +99,7 @@
+      @property
+      def provisioning_profile_basename(self):
+ +        if os.environ.get('PROD_MACOS_SPECIAL_ENTITLEMENTS_PROFILE_PATH'):
+-+            return 'Helium'
+++            return 'Nexus'
+          return None
+ --- a/chrome/installer/mac/signing/model.py
+ +++ b/chrome/installer/mac/signing/model.py
+@@ -108,7 +108,7 @@
+                          profile_basename, this.app_name_fragment
+                      )
+ -                if base_config.identity:
+-+                # Helium stages its profile as Helium.provisionprofile.
+++                # Nexus stages its profile as Nexus.provisionprofile.
+ +                if base_config.is_chrome_branded() and base_config.identity:
+                      profile_basename = '{}.{}'.format(
+                          profile_basename,
+diff -ruN /home/claude/orig_helium_macos/patches/helium/macos/disable-chromium-immersive-fullscreen.patch helium-macos/patches/helium/macos/disable-chromium-immersive-fullscreen.patch
+--- /home/claude/orig_helium_macos/patches/helium/macos/disable-chromium-immersive-fullscreen.patch	2026-10-15 08:40:33.932620081 +0000
++++ helium-macos/patches/helium/macos/disable-chromium-immersive-fullscreen.patch	2026-10-15 08:40:34.082637317 +0000
+@@ -84,7 +84,7 @@
+ -  bool show_toolbar = prefs->GetBoolean(prefs::kShowFullscreenToolbar);
+ -  prefs->SetBoolean(prefs::kShowFullscreenToolbar, !show_toolbar);
+ +void ToggleAlwaysShowToolbarInFullscreen(BrowserWindowInterface*) {
+-+  // Helium controls fullscreen toolbar visibility through its layout and Zen mode.
+++  // Nexus controls fullscreen toolbar visibility through its layout and Zen mode.
+  }
+  
+  void SetAlwaysShowToolbarInFullscreenForTesting(
+@@ -138,7 +138,7 @@
+ -  }
+ -  return browser_window_interface->GetProfile()->GetPrefs()->GetBoolean(
+ -      prefs::kShowFullscreenToolbar);
+-+  // Keep the toolbar available to Helium's layout and Zen mode, independently
+++  // Keep the toolbar available to Nexus's layout and Zen mode, independently
+ +  // of the legacy profile or web app fullscreen toolbar setting.
+ +  return true;
+  }
+diff -ruN /home/claude/orig_helium_macos/patches/helium/macos/helium-immersive-fullscreen.patch helium-macos/patches/helium/macos/helium-immersive-fullscreen.patch
+--- /home/claude/orig_helium_macos/patches/helium/macos/helium-immersive-fullscreen.patch	2026-10-15 08:40:33.932633370 +0000
++++ helium-macos/patches/helium/macos/helium-immersive-fullscreen.patch	2026-10-15 08:40:34.083476040 +0000
+@@ -6,7 +6,7 @@
+  - (void)setAlwaysShowTrafficLights:(BOOL)alwaysShow;
+ +
+ +// Hide AppKit's fullscreen overlay and pass mouse events through it while
+-+// Helium hosts the controls in its tab strip or toolbar.
+++// Nexus hosts the controls in its tab strip or toolbar.
+ +- (void)setAppKitFullscreenOverlaySuppressed:(BOOL)suppressed;
+ +
+  // A controller that keeps a small portion (0.5px) of the fullscreen AppKit
+@@ -22,7 +22,7 @@
+ +@implementation BrowserNativeWidgetWindow {
+ +  BOOL _appKitFullscreenOverlaySuppressed;
+ +  NSWindow* __weak _appKitFullscreenOverlayWindow;
+-+  // AppKit state to restore when Helium stops hosting the controls.
+++  // AppKit state to restore when Nexus stops hosting the controls.
+ +  BOOL _savedToolbarWindowIgnoresMouseEvents;
+ +  BOOL _savedToolbarFrameHidden;
+ +}
+@@ -90,7 +90,7 @@
+ +
+ +#import <Cocoa/Cocoa.h>
+ +
+-+// Native traffic lights hosted in Helium's tab strip or toolbar. The system
+++// Native traffic lights hosted in Nexus's tab strip or toolbar. The system
+ +// titlebar is restored when entering content fullscreen or leaving fullscreen.
+ +@interface HeliumFullscreenWindowControls : NSView
+ +- (instancetype)initWithWindow:(NSWindow*)window size:(NSSize)size;
+@@ -156,7 +156,7 @@
+ +  _originalWindowButtonHiddenStates = hiddenStates;
+ +
+ +  // Create ordinary window buttons even while AppKit's fullscreen titlebar
+-+  // is hidden. Their visibility is controlled by Helium's toolbar instead.
+++  // is hidden. Their visibility is controlled by Nexus's toolbar instead.
+ +  const bool rtl = window.windowTitlebarLayoutDirection ==
+ +                   NSUserInterfaceLayoutDirectionRightToLeft;
+ +  for (size_t i = 0; i < std::size(buttons); ++i) {
+@@ -269,7 +269,7 @@
+    // them in the layout for exclusion area calculations.
+    virtual void SetCaptionButtonsOpacity(float opacity) {}
+  
+-+  // Updates the bounds and visibility of Helium Fullscreen window controls.
+++  // Updates the bounds and visibility of Nexus Fullscreen window controls.
+ +  virtual void UpdateHeliumFullscreenWindowControls() {}
+ +
+    // Signals that the frame's minimum size may have changed. This prompts the
+@@ -301,7 +301,7 @@
+    FRIEND_TEST_ALL_PREFIXES(BrowserFrameViewMacTest,
+                             GetCaptionButtonPlaceholderBounds);
+  
+-+  // Whether this fullscreen session uses Helium Fullscreen window controls.
+++  // Whether this fullscreen session uses Nexus Fullscreen window controls.
+ +  // Content fullscreen temporarily hides them without changing this result.
+ +  bool ShouldUseHeliumFullscreenWindowControls() const;
+ +
+diff -ruN /home/claude/orig_helium_macos/patches/helium/macos/prevent-reset-on-keychain-unavailability.patch helium-macos/patches/helium/macos/prevent-reset-on-keychain-unavailability.patch
+--- /home/claude/orig_helium_macos/patches/helium/macos/prevent-reset-on-keychain-unavailability.patch	2026-10-15 08:40:33.933252024 +0000
++++ helium-macos/patches/helium/macos/prevent-reset-on-keychain-unavailability.patch	2026-10-15 08:40:34.084659681 +0000
+@@ -245,7 +245,7 @@
+  
+        <if expr="is_macosx">
+ +        <message name="IDS_KEYCHAIN_STARTUP_ERROR" desc="Startup error shown when the browser cannot access its macOS Keychain encryption key.">
+-+          Helium couldn't access the macOS Keychain. To protect your data, the browser will close. If prompted by macOS, allow access to Helium's encryption key. Quit any other copies of Helium, then reopen it.
+++          Nexus couldn't access the macOS Keychain. To protect your data, the browser will close. If prompted by macOS, allow access to Nexus's encryption key. Quit any other copies of Nexus, then reopen it.
+ +        </message>
+          <!-- Confirm to quit panel -->
+          <message name="IDS_CONFIRM_TO_QUIT_DESCRIPTION" desc="Instructions for how the user should confirm quitting.">
+Binary files /home/claude/orig_helium_macos/resources/assets/app.icns and helium-macos/resources/assets/app.icns differ
+diff -ruN /home/claude/orig_helium_macos/resources/dmg.json helium-macos/resources/dmg.json
+--- /home/claude/orig_helium_macos/resources/dmg.json	2026-10-15 08:40:33.932282552 +0000
++++ helium-macos/resources/dmg.json	2026-10-15 08:40:34.007026528 +0000
+@@ -1,11 +1,11 @@
+ {
+-    "title": "Helium",
+-    "icon": "Helium.app/Contents/Resources/app.icns",
++    "title": "Nexus",
++    "icon": "Nexus.app/Contents/Resources/app.icns",
+     "background": "dmg_background.png",
+ 
+     "icon-size": 90,
+     "contents": [
+-        { "x": 175, "y": 130, "type": "file", "path": "Helium.app" },
++        { "x": 175, "y": 130, "type": "file", "path": "Nexus.app" },
+         { "x": 175, "y": 370, "type": "link", "path": "/Applications" }
+     ],
+ 
+diff -ruN /home/claude/orig_helium_macos/sign_and_package_app.sh helium-macos/sign_and_package_app.sh
+--- /home/claude/orig_helium_macos/sign_and_package_app.sh	2026-10-15 08:40:33.914548225 +0000
++++ helium-macos/sign_and_package_app.sh	2026-10-15 08:40:34.006737048 +0000
+@@ -1,13 +1,13 @@
+ #!/bin/bash -eux
+ 
+ _root_dir="$(dirname "$(greadlink -f "$0")")"
+-_app="out/Default/Helium.app"
+-_packaging="out/Default/Helium Packaging"
++_app="out/Default/Nexus.app"
++_packaging="out/Default/Nexus Packaging"
+ 
+ if [ -n "${MACOS_CERTIFICATE_NAME:-}" ]; then
+   if [ -n "${PROD_MACOS_SPECIAL_ENTITLEMENTS_PROFILE_PATH:-}" ]; then
+     # Chromium embeds this profile from its packaging inputs during signing.
+-    cp "$PROD_MACOS_SPECIAL_ENTITLEMENTS_PROFILE_PATH" "$_packaging/Helium.provisionprofile"
++    cp "$PROD_MACOS_SPECIAL_ENTITLEMENTS_PROFILE_PATH" "$_packaging/Nexus.provisionprofile"
+   fi
+ 
+   CREDENTIAL_ARGS=(store-credentials notarytool-profile)
+@@ -30,7 +30,7 @@
+     --disable-packaging --notarize \
+     "${NOTARY_ARGS[@]}"
+ 
+-  _app="out/Default/signed/stable/Helium.app"
++  _app="out/Default/signed/stable/Nexus.app"
+ else
+   echo "warn: MACOS_CERTIFICATE_NAME is missing; skipping notarization" >&2
+   codesign --force --deep --sign - "$_app"
+@@ -40,14 +40,14 @@
+   _chromium_version=$(cat "$_root_dir/helium-chromium/chromium_version.txt")
+   _helium_revision=$(cat "$_root_dir/helium-chromium/revision.txt")
+   _platform_revision=$(cat "$_root_dir/revision.txt")
+-  OUT_DMG_PATH="$_root_dir/build/helium_${_chromium_version}-${_helium_revision}.${_platform_revision}_macos.dmg"
++  OUT_DMG_PATH="$_root_dir/build/nexus_${_chromium_version}-${_helium_revision}.${_platform_revision}_macos.dmg"
+ fi
+ 
+ # Package the app
+ chrome/installer/mac/pkg-dmg \
+   --sourcefile --source "$_app" \
+   --target "$OUT_DMG_PATH" \
+-  --volname Helium --format ULMO \
++  --volname Nexus --format ULMO \
+   --icon "$_app/Contents/Resources/app.icns" \
+   --symlink /Applications:/Applications \
+   --mkdir .background \
+@@ -58,6 +58,6 @@
+ if [ -n "${MACOS_CERTIFICATE_NAME:-}" ]; then
+   codesign \
+     --sign "$MACOS_CERTIFICATE_NAME" \
+-    --identifier net.imput.helium --force \
++    --identifier com.nexus.browser --force \
+     "$OUT_DMG_PATH"
+ fi

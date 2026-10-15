@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Nexus Vault",
+  "version": "1.1.0",
+  "description": "A local, encrypted password manager for Nexus. Your passwords never leave this computer.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp4p1Cs+cHS2lXrXdnqYD6rnXdkax6icBXtzSSGKSD/or0OlKqG8SbUuoEShmkAC1VKUWQvVKxu3S29ndcjhFuD9hWcJ3u+0Jcw1E14/UUag7/XZnyWt81u5DIoI8jhW64xry7fFnTS9zQhmRkw5B1ptohTa+2SpKMNdl5judNt0Nzp9lnTcVp1CNX5JB4EC8Yy2QiluiTxyTIUzw/xuLiMZCERflUJmpCucpeAyx+atV4Kve0+7gPJSqCha8G9r4pfd3uhnP8GoERhZ82Zav7UI8VbpkCosJO8JaPRrQh91UZXuh1cfIY3UpTrtAvKlMhikpVjUbsoz7GHCO8w52nQIDAQAB",
+  "action": {
+    "default_title": "Nexus Vault",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "alarms",
+    "idle"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

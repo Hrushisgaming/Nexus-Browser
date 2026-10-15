@@ -1,0 +1,279 @@
+diff --git a/chrome/app/vector_icons/BUILD.gn b/chrome/app/vector_icons/BUILD.gn
+index 6181f1b..9b39988 100644
+--- a/chrome/app/vector_icons/BUILD.gn
++++ b/chrome/app/vector_icons/BUILD.gn
+@@ -228,6 +228,7 @@ aggregate_vector_icons("chrome_vector_icons") {
+     "new_tab_refresh_old.icon",
+     "new_window.icon",
+     "new_window_old.icon",
++    "nexus_crosshair.icon",
+     "notes.icon",
+     "notes_old.icon",
+     "open_in_browser.icon",
+diff --git a/chrome/app/vector_icons/nexus_crosshair.icon b/chrome/app/vector_icons/nexus_crosshair.icon
+new file mode 100644
+index 0000000..ea8b8b5
+--- /dev/null
++++ b/chrome/app/vector_icons/nexus_crosshair.icon
+@@ -0,0 +1,44 @@
++// Nexus crosshair: ring, four ticks and an AI sparkle. Drawn as filled paths so it takes the theme's text color.
++
++CANVAS_DIMENSIONS, 24,
++FILL_RULE_NONZERO,
++// Outer ring (clockwise) with an inner circle cut out (counter-clockwise).
++MOVE_TO, 12, 1.5f,
++ARC_TO, 10.5f, 10.5f, 0, 1, 1, 12, 22.5f,
++ARC_TO, 10.5f, 10.5f, 0, 1, 1, 12, 1.5f,
++CLOSE,
++MOVE_TO, 12, 3.5f,
++ARC_TO, 8.5f, 8.5f, 0, 1, 0, 12, 20.5f,
++ARC_TO, 8.5f, 8.5f, 0, 1, 0, 12, 3.5f,
++CLOSE,
++// Four ticks pointing at the centre.
++MOVE_TO, 11, 1,
++R_H_LINE_TO, 2,
++R_V_LINE_TO, 6,
++R_H_LINE_TO, -2,
++CLOSE,
++MOVE_TO, 11, 17,
++R_H_LINE_TO, 2,
++R_V_LINE_TO, 6,
++R_H_LINE_TO, -2,
++CLOSE,
++MOVE_TO, 1, 11,
++R_H_LINE_TO, 6,
++R_V_LINE_TO, 2,
++R_H_LINE_TO, -6,
++CLOSE,
++MOVE_TO, 17, 11,
++R_H_LINE_TO, 6,
++R_V_LINE_TO, 2,
++R_H_LINE_TO, -6,
++CLOSE,
++// Sparkle in the middle.
++MOVE_TO, 12, 8,
++LINE_TO, 13.2f, 10.8f,
++LINE_TO, 16, 12,
++LINE_TO, 13.2f, 13.2f,
++LINE_TO, 12, 16,
++LINE_TO, 10.8f, 13.2f,
++LINE_TO, 8, 12,
++LINE_TO, 10.8f, 10.8f,
++CLOSE
+diff --git a/chrome/browser/ui/tabs/tab_strip_prefs.cc b/chrome/browser/ui/tabs/tab_strip_prefs.cc
+index 47f4f37..fd7e3db 100644
+--- a/chrome/browser/ui/tabs/tab_strip_prefs.cc
++++ b/chrome/browser/ui/tabs/tab_strip_prefs.cc
+@@ -21,6 +21,7 @@
+ namespace tabs {
+ 
+ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
++  registry->RegisterBooleanPref(kNexusAskButtonShown, true);
+   registry->RegisterBooleanPref(prefs::kTabSearchPinnedToTabstrip, true);
+   registry->RegisterBooleanPref(prefs::kOrganizerPanelPinnedToTabstrip, true);
+   registry->RegisterBooleanPref(prefs::kEverythingMenuPinnedToTabstrip, true);
+diff --git a/chrome/browser/ui/tabs/tab_strip_prefs.h b/chrome/browser/ui/tabs/tab_strip_prefs.h
+index 80cf09d..18a0344 100644
+--- a/chrome/browser/ui/tabs/tab_strip_prefs.h
++++ b/chrome/browser/ui/tabs/tab_strip_prefs.h
+@@ -14,6 +14,9 @@ class BrowserWindowInterface;
+ 
+ namespace tabs {
+ 
++// Nexus: whether the "Ask Nexus" button is shown at the right end of the tab strip.
++inline constexpr char kNexusAskButtonShown[] = "nexus.ask_button_shown";
++
+ enum class TabSearchPosition {
+   kLeadingHorizontalTabstrip,
+   kVerticalTabstrip,
+diff --git a/chrome/browser/ui/toolbar/app_menu_model.cc b/chrome/browser/ui/toolbar/app_menu_model.cc
+index a5d8e8a..10f89c1 100644
+--- a/chrome/browser/ui/toolbar/app_menu_model.cc
++++ b/chrome/browser/ui/toolbar/app_menu_model.cc
+@@ -81,6 +81,7 @@
+ #include "chrome/browser/ui/startup/default_browser_prompt/default_browser_prompt_manager.h"
+ #include "chrome/browser/ui/tabs/features.h"
+ #include "chrome/browser/ui/tabs/recent_tabs_sub_menu_model.h"
++#include "chrome/browser/ui/tabs/tab_strip_prefs.h"
+ #include "chrome/browser/ui/tabs/tab_strip_model.h"
+ #include "chrome/browser/ui/tabs/vertical_tab_strip_metrics.h"
+ #include "chrome/browser/ui/tabs/vertical_tab_strip_state_controller.h"
+@@ -227,6 +228,10 @@ DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(HelpMenuModel, kReportUnsafeSiteMenuItem);
+ 
+ namespace {
+ 
++// Nexus: "Show Ask Nexus" check item that shows or hides the Ask Nexus button
++// in the tab strip. Above every IDC_ value in chrome_command_ids.h.
++constexpr int kNexusAskButtonCommandId = 58001;
++
+ ////////////////////////////////////////////////////////////////////////////////
+ // AddItemWithStringIdAndVectorIcon
+ void AddItemWithStringIdAndVectorIcon(ui::SimpleMenuModel* model,
+@@ -992,6 +997,13 @@ bool AppMenuModel::DoesCommandIdDismissMenu(int command_id) const {
+ }
+ 
+ void AppMenuModel::ExecuteCommand(int command_id, int event_flags) {
++  if (command_id == kNexusAskButtonCommandId) {
++    PrefService* const nexus_prefs = browser_->GetProfile()->GetPrefs();
++    nexus_prefs->SetBoolean(tabs::kNexusAskButtonShown,
++                            !nexus_prefs->GetBoolean(tabs::kNexusAskButtonShown));
++    return;
++  }
++
+   GlobalError* error =
+       GlobalErrorServiceFactory::GetForProfile(browser_->GetProfile())
+           ->GetGlobalErrorByMenuItemCommandID(command_id);
+@@ -1699,6 +1711,9 @@ void AppMenuModel::LogMenuMetrics(int command_id) {
+ 
+ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+   PrefService* prefs = browser_->GetProfile()->GetPrefs();
++  if (command_id == kNexusAskButtonCommandId) {
++    return prefs->GetBoolean(tabs::kNexusAskButtonShown);
++  }
+   if (command_id == IDC_SHOW_BOOKMARK_BAR) {
+     return prefs->GetBoolean(bookmarks::prefs::kShowBookmarkBar);
+   }
+@@ -1734,6 +1749,8 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+   }
+ 
+   switch (command_id) {
++    case kNexusAskButtonCommandId:
++      return true;
+     case IDC_NEW_INCOGNITO_WINDOW:
+       return IncognitoModePrefs::IsIncognitoAllowed(browser_->GetProfile());
+     default:
+@@ -2012,6 +2029,8 @@ void AppMenuModel::Build() {
+                                          : kEditChromeRefreshOldIcon);
+   }
+ 
++  AddCheckItem(kNexusAskButtonCommandId, u"Show Ask Nexus");
++
+   AddItemWithStringIdAndVectorIcon(
+       this, IDC_OPTIONS, IDS_SETTINGS,
+       features::IsRoundedIconsEnabled() ? kSettingsIcon : kSettingsMenuOldIcon);
+diff --git a/chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc b/chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
+index c5a1b02..90d4300 100644
+--- a/chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
++++ b/chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc
+@@ -6,6 +6,8 @@
+ 
+ #include "base/feature_list.h"
+ #include "base/functional/bind.h"
++#include "chrome/app/vector_icons/vector_icons.h"
++#include "chrome/browser/profiles/profile.h"
+ #include "base/task/single_thread_task_runner.h"
+ #include "build/build_config.h"
+ #include "build/buildflag.h"
+@@ -17,6 +19,9 @@
+ #include "chrome/browser/ui/browser_element_identifiers.h"
+ #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
+ #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
++#include "chrome/browser/ui/side_panel/side_panel_entry_key.h"
++#include "chrome/browser/ui/side_panel/side_panel_enums.h"
++#include "chrome/browser/ui/side_panel/side_panel_ui.h"
+ #include "chrome/browser/ui/color/chrome_color_id.h"
+ #include "chrome/browser/ui/frame/window_frame_util.h"
+ #include "chrome/browser/ui/helium/helium_layout_state_controller.h"
+@@ -51,7 +56,9 @@
+ #include "chrome/common/buildflags.h"
+ #include "chrome/grit/generated_resources.h"
+ #include "components/tab_groups/tab_group_id.h"
++#include "components/prefs/pref_service.h"
+ #include "components/vector_icons/vector_icons.h"
++#include "extensions/common/extension_id.h"
+ #include "ui/base/clipboard/clipboard_constants.h"
+ #include "ui/base/dragdrop/drag_drop_types.h"
+ #include "ui/base/dragdrop/os_exchange_data.h"
+@@ -294,6 +301,31 @@ HorizontalTabStripRegionViewOld::HorizontalTabStripRegionViewOld(
+     tab_strip_action_container_ =
+         AddChildView(std::move(tab_strip_action_container));
+   }
++
++  // Nexus: "Ask Nexus" button, like Chrome's Gemini button. It is the last
++  // child, so it sits at the right end and keeps its size while the tab strip
++  // (kScaleToZero above) shrinks.
++  if (browser &&
++      (browser->GetType() == BrowserWindowInterface::Type::TYPE_NORMAL)) {
++    nexus_ask_button_ = AddChildView(std::make_unique<TabStripControlButton>(
++        browser,
++        base::BindRepeating(
++            &HorizontalTabStripRegionViewOld::OnNexusAskButtonPressed,
++            base::Unretained(this)),
++        kNexusCrosshairIcon, std::u16string(u"Ask Nexus"), Edge::kNone,
++        Edge::kNone));
++    nexus_ask_button_->SetTooltipText(u"Ask Nexus");
++    nexus_ask_button_->GetViewAccessibility().SetName(u"Ask Nexus");
++    nexus_ask_button_->SetProperty(views::kCrossAxisAlignmentKey,
++                                   views::LayoutAlignment::kCenter);
++    nexus_pref_registrar_.Init(browser_view->GetProfile()->GetPrefs());
++    nexus_pref_registrar_.Add(
++        tabs::kNexusAskButtonShown,
++        base::BindRepeating(
++            &HorizontalTabStripRegionViewOld::UpdateNexusAskButtonVisibility,
++            base::Unretained(this)));
++    UpdateNexusAskButtonVisibility();
++  }
+   UpdateTabStripMargin();
+ }
+ 
+@@ -314,6 +346,28 @@ HorizontalTabStripRegionViewOld::~HorizontalTabStripRegionViewOld() {
+   }
+ }
+ 
++void HorizontalTabStripRegionViewOld::OnNexusAskButtonPressed() {
++  // Id of the built-in "Chat with Nexus" extension (fixed by the "key" in its
++  // manifest.json). Opens or closes its side panel.
++  static constexpr char kNexusChatExtensionId[] =
++      "iokkgaheigikheidihfidjdkocoaplco";
++  BrowserWindowInterface* const browser = browser_view_->browser();
++  if (SidePanelUI* const side_panel_ui = SidePanelUI::From(browser)) {
++    side_panel_ui->Toggle(
++        SidePanelEntryKey(SidePanelEntryId::kExtension,
++                          extensions::ExtensionId(kNexusChatExtensionId)),
++        SidePanelOpenTrigger::kToolbarButton);
++  }
++}
++
++void HorizontalTabStripRegionViewOld::UpdateNexusAskButtonVisibility() {
++  if (nexus_ask_button_) {
++    nexus_ask_button_->SetVisible(
++        browser_view_->GetProfile()->GetPrefs()->GetBoolean(
++            tabs::kNexusAskButtonShown));
++  }
++}
++
+ bool HorizontalTabStripRegionViewOld::IsPositionInWindowCaption(
+     const gfx::Point& point) {
+   if (new_tab_button_ && IsHitInView(new_tab_button_, point)) {
+diff --git a/chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.h b/chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.h
+index 3860b61..96d0488 100644
+--- a/chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.h
++++ b/chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.h
+@@ -7,6 +7,7 @@
+ 
+ #include "base/memory/raw_ptr.h"
+ #include "build/buildflag.h"
++#include "components/prefs/pref_change_registrar.h"
+ #include "chrome/browser/ui/tabs/tab_data.h"
+ #include "chrome/browser/ui/views/frame/base_tab_strip_region_view.h"
+ #include "chrome/browser/ui/views/frame/tab_strip_region_view.h"
+@@ -116,6 +117,10 @@ class HorizontalTabStripRegionViewOld : public TabStripRegionView {
+ 
+   void OnUnfocusButtonVisibilityChanged();
+ 
++  // Nexus: the "Ask Nexus" button at the right end of the tab strip.
++  void OnNexusAskButtonPressed();
++  void UpdateNexusAskButtonVisibility();
++
+   // Gets called on `Layout` and adjusts the x-axis position of the `view` based
+   // on `offset`. This should only used for views that show before tab strip.
+   void AdjustViewBoundsRect(View* view, int offset);
+@@ -131,6 +136,8 @@ class HorizontalTabStripRegionViewOld : public TabStripRegionView {
+   raw_ptr<TabStripComboButton> combo_button_ = nullptr;
+   raw_ptr<views::Button> new_tab_button_ = nullptr;
+   raw_ptr<TabStripControlButton> unfocus_button_ = nullptr;
++  raw_ptr<TabStripControlButton> nexus_ask_button_ = nullptr;
++  PrefChangeRegistrar nexus_pref_registrar_;
+ 
+   std::unique_ptr<views::ActionViewController> action_view_controller_;
+   base::CallbackListSubscription unfocus_button_subscription_;
