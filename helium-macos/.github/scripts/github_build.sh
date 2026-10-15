@@ -2,7 +2,7 @@
 
 # Build one CI phase, leaving time to upload a checkpoint before the job limit.
 _target_cpu="${1:-x86_64}"
-_root_dir="$(greadlink -f "$0")"
+_root_dir="$(dirname "$(greadlink -f "$0")")"
 source "$_root_dir/devutils/shared.sh"
 epoch_job_start="$(cat "$_root_dir/epoch_job_start.txt")"
 
