@@ -29,6 +29,15 @@ if ! env | grep -q SCCACHE; then
 fi
 
 export SCCACHE_WEBDAV_KEY_PREFIX="${_target_cpu}"
+
+# If GitHub's cache service is down, sccache can't start and every compile fails.
+# Fall back to the local disk cache so the build can still finish.
+if ! sccache --start-server; then
+    echo "warn: GitHub cache unavailable, falling back to local sccache" >&2
+    unset SCCACHE_GHA_ENABLED SCCACHE_GHA_VERSION
+    sccache --stop-server || true
+fi
+
 _error_code=0
 timeout -k 7m -s SIGTERM "${_remaining_time}s" \
     "$_root_dir/devutils/shared.sh" build chrome/installer/mac || _error_code=$?
