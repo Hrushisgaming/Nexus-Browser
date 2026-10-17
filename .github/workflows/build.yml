@@ -10,8 +10,13 @@ on:
         required: false
         description: "Runner image name"
         default: "macos-latest"
+      resume_run_id:
+        required: false
+        description: "Optional: run ID of an unfinished earlier run to continue from (the number in its URL). Leave empty for a fresh build."
+        default: ""
 
 permissions:
+  actions: read
   contents: read
 
 jobs:
@@ -21,3 +26,4 @@ jobs:
     with:
       arch: arm64
       os: ${{ inputs.runner }}
+      resume_run_id: ${{ inputs.resume_run_id }}
