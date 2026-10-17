@@ -6,6 +6,7 @@ defaults:
     working-directory: helium-macos
 
 permissions:
+  actions: read
   contents: read
 
 on:
@@ -21,6 +22,10 @@ on:
         required: false
         type: boolean
         default: false
+      resume_run_id:
+        required: false
+        type: string
+        default: ""
     outputs:
       status:
         value: ${{ jobs.build_job.outputs.status }}
@@ -59,12 +64,16 @@ jobs:
         with:
           name: github_build_logs_${{ inputs.arch }}
           path: helium-macos
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.resume_run_id || github.run_id }}
       - name: Download build
         if: ${{ inputs.resume }}
         uses: actions/download-artifact@v4
         with:
           name: github_build_artifact_${{ inputs.arch }}
           path: helium-macos
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.resume_run_id || github.run_id }}
       - name: Unpack archive of build
         if: ${{ inputs.resume }}
         run: ./github_unpack_archive.sh
